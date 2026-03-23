@@ -1,7 +1,4 @@
-# %% [markdown]
-# # 按照时间重新做前面的分析
 
-# %%
 import pandas as pd
 import numpy as np
 import xarray as xr
@@ -9,32 +6,22 @@ import rioxarray
 import matplotlib.pyplot as plt
 import glob
 
-# %% [markdown]
-# ## 1 先读取数据   
-# 用之前做机器学习保存的数据
-# log转换
-# 分位数筛选
 
-# %% [markdown]
-# ### 1.1 干旱抵抗力
 
 # %%
-with  xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_nt_resistance.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/kndvi_nt_resistance.nc') as data:
     kndvi_nt_resistance = data['kndvi_resistance']
-with  xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_sh_resistance.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/kndvi_sh_resistance.nc') as data:
     kndvi_sh_resistance = data['kndvi_resistance']
 kndvi_nt_resistance
 
-# %%
 kndvi_sh_resistance
 
-# %%
 kndvi_nt_resistance[0:4].plot(x = 'lon', y = 'lat', col = 'year', col_wrap = 4, cmap = 'RdYlGn')
 
-# %%
-with  xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_nt_resistance2.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/kndvi_nt_resistance2.nc') as data:
     kndvi_nt_resistance2 = data['kndvi_resistance']
-with  xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_sh_resistance2.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/kndvi_sh_resistance2.nc') as data:
     kndvi_sh_resistance2 = data['kndvi_resistance']
 kndvi_nt_resistance2
 
@@ -44,10 +31,7 @@ kndvi_sh_resistance2
 # %%
 kndvi_nt_resistance2[0:4].plot(x = 'lon', y = 'lat', col = 'year', col_wrap = 4, cmap = 'RdYlGn')
 
-# %% [markdown]
-# ### 1.2 干旱指数
 
-# %%
 with xr.open_dataset(r'../result_data/spei_nt_annual_drought.nc') as data:
     spei_nt_annual_drought = data['spei']
 
@@ -63,13 +47,11 @@ spei_nt_drought_use_kndvi[0:4].plot(x = 'lon', y = 'lat', col = 'year', col_wrap
 # %%
 spei_sh_drought_use_kndvi[0:4].plot(x = 'lon', y = 'lat', col = 'year', col_wrap = 4, cmap = 'RdYlGn')
 
-# %% [markdown]
-# ### 1.3 气候背景
 
-# %%
-era_temp_path = glob.glob(r'D:/data/era5_land_annual/era5_land_mean*.nc')
-era_prec_path = glob.glob(r'D:/data/era5_land_annual/era5_land_pre*.nc')
-## 年均温
+
+era_temp_path = glob.glob(r'./data/era5_land_annual/era5_land_mean*.nc')
+era_prec_path = glob.glob(r'./data/era5_land_annual/era5_land_pre*.nc')
+
 annual_temp = []
 for path_n in era_temp_path:
     print(path_n)
@@ -81,11 +63,9 @@ annual_temp = xr.concat(annual_temp, dim='year')
 annual_temp = annual_temp.mean(dim='year')
 annual_temp = annual_temp - 273.15
 
-# %%
+
 annual_temp.plot()
 
-# %%
-## 年降水
 annual_prec = []
 for path_n in era_prec_path:
     print(path_n)
@@ -99,19 +79,15 @@ annual_prec = annual_prec*1000*30
 annual_prec = annual_prec.where(annual_prec < 7000)
 annual_prec.plot()
 
-# %%
-## 干旱指数 ai
-with rioxarray.open_rasterio(r'D:/data/Global-AI_ET0_annual_v3/Global-AI_ET0_v3_annual/ai_v3_yr.tif')  as data:
+
+with rioxarray.open_rasterio(r'./data/Global-AI_ET0_annual_v3/Global-AI_ET0_v3_annual/ai_v3_yr.tif')  as data:
         ai_index= xr.DataArray(data.values[0], coords=[data.y, data.x], dims=['lat','lon'])
 ai_index = ai_index.coarsen(lat=10,lon=10).mean()
 ai_index
 ai_index = ai_index * 0.0001
 ai_index.where(ai_index<1.5).plot()
 
-# %% [markdown]
-# ### 1.4 多样性和结构复杂度  LAI
 
-# %%
 with xr.open_dataset(r'../result_data/plant_richness_log_05.nc') as data:
     plant_richness = data['richness']
 plant_richness
@@ -120,7 +96,7 @@ plant_richness
 plant_richness.plot()
 
 # %%
-with xr.open_dataset(r'D:/data/fsc_from_su/data/global_forest_csc/global_forest_csc.tif')  as  data:
+with xr.open_dataset(r'./data/fsc_from_su/data/global_forest_csc/global_forest_csc.tif')  as  data:
     fsc = data['band_data'][0].drop(['spatial_ref','band'])
 fsc = fsc.rename({'x':'lon','y':'lat'})
 fsc = fsc.coarsen(lat = 20, lon=20).mean()
@@ -138,8 +114,6 @@ lai_gs
 # %%
 lai_gs.plot()
 
-# %% [markdown]
-# ### 1.5 干旱指标
 
 # %%
 with xr.open_dataset(r'../result_data/drought_chars_1982_2022_new.nc') as data:
@@ -154,11 +128,9 @@ drought_count
 # %%
 drought_duration
 
-# %% [markdown]
-# ### 1.6 土壤性质
 
 # %%
-with xr.open_dataset(r'D:/data/soil/soilgrids2.0_cec_060.nc')  as data:
+with xr.open_dataset(r'./data/soil/soilgrids2.0_cec_060.nc')  as data:
     soil_cec = data['cec_060']
     soil_cec = soil_cec.where(soil_cec>0)
 soil_cec = soil_cec.coarsen(lat =12, lon = 12).mean() * 0.001
@@ -166,21 +138,16 @@ soil_cec = soil_cec.interp_like(plant_richness, method='nearest')
 soil_cec
 
 # %%
-with xr.open_dataset(r'D:/data/soil/soilgrids2.0_clay_060.nc')  as data:
+with xr.open_dataset(r'./data/soil/soilgrids2.0_clay_060.nc')  as data:
     soil_clay = data['clay_060']
     soil_clay = soil_clay.where(soil_clay>0)
 soil_clay = soil_clay.coarsen(lat =12, lon = 12).mean() * 0.001
 soil_clay = soil_clay.interp_like(plant_richness, method='nearest')
 soil_clay
 
-# %%
 soil_clay.plot()
 
-# %% [markdown]
-# ### 1.7 CTI
-
-# %%
-with xr.open_dataset(r'D:/data/Compound_topographic_index/cti_24.nc') as data:
+with xr.open_dataset(r'./data/Compound_topographic_index/cti_24.nc') as data:
     cti = data['cti']
 cti
 
@@ -192,21 +159,19 @@ cti
 # %%
 cti.plot(center = False)
 
-# %% [markdown]
-# ### 1.8 性状
 
-# %%
-with rioxarray.open_rasterio(r'D:/data/trait_Boonman_2020_geb/SLA.tif') as data:
+
+with rioxarray.open_rasterio(r'./data/trait_Boonman_2020_geb/SLA.tif') as data:
     sla = data.where(data>0)
 sla
 
-# %%
+
 sla = xr.DataArray(sla[0], coords=[sla.y, sla.x], dims=['lat','lon'])
 sla = sla.interp_like(plant_richness, method='nearest')
 sla
 
-# %%
-with rioxarray.open_rasterio(r'D:/data/trait_Boonman_2020_geb/Wood.density.tif') as data:
+
+with rioxarray.open_rasterio(r'./data/trait_Boonman_2020_geb/Wood.density.tif') as data:
     wood_den = data.where(data>0)
 wood_den
 
@@ -223,17 +188,15 @@ annual_temp = annual_temp.interp_like(plant_richness, method='nearest')
 annual_prec = annual_prec.interp_like(plant_richness, method='nearest')
 ai_index = ai_index.interp_like(plant_richness, method='nearest')
 
-# %% [markdown]
-# ### 1.9 土壤水分变化 蒸腾变化 和  LST变化
 
 # %%
-with xr.open_dataset(r'E:/python_output/fsc_drought/smrz_nt_change_kndvi.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/smrz_nt_change_kndvi.nc') as data:
     smrz_nt_change_kndvi = data['sm_change']
-with xr.open_dataset(r'E:/python_output/fsc_drought/smrz_sh_change_kndvi.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/smrz_sh_change_kndvi.nc') as data:
     smrz_sh_change_kndvi = data['sm_change']
 smrz_nt_change_kndvi
 
-# %%
+
 smrz_nt_change_kndvi[0:4].plot(x = 'lon',y = 'lat', col = 'year', col_wrap = 4)
 
 # %%
@@ -242,36 +205,28 @@ smrz_sh_change_kndvi
 # %%
 smrz_sh_change_kndvi[0:4].plot(x = 'lon',y = 'lat', col = 'year', col_wrap = 4)
 
-# %%
-## 蒸腾2
-with xr.open_dataset(r'E:/python_output/fsc_drought/et_nt_change2_kndvi.nc') as data:
+
+with xr.open_dataset(r'./python_output/fsc_drought/et_nt_change2_kndvi.nc') as data:
     et_nt_change_kndvi = data['et_change2']
-with xr.open_dataset(r'E:/python_output/fsc_drought/et_sh_change2_kndvi.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/et_sh_change2_kndvi.nc') as data:
     et_sh_change_kndvi = data['et_change2']
 et_nt_change_kndvi
 
-# %%
 et_nt_change_kndvi[0:4].plot(x = 'lon',y='lat',col = 'year', col_wrap = 4, vmin = -0.5, vmax = 0.5)
 
-# %%
 et_sh_change_kndvi
 
-# %%
 et_sh_change_kndvi[0:4].plot(x = 'lon',y='lat',col = 'year', col_wrap = 4, vmin = -0.5, vmax = 0.5)
 
-# %%
-## LST
-with xr.open_dataset(r'E:/python_output/fsc_drought/lst_nt_zs_kndvi.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/lst_nt_zs_kndvi.nc') as data:
     lst_nt_zs_kndvi = data['lst_zs']
-with xr.open_dataset(r'E:/python_output/fsc_drought/lst_sh_zs_kndvi.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/lst_sh_zs_kndvi.nc') as data:
     lst_sh_zs_kndvi = data['lst_zs']
 lst_nt_zs_kndvi[:4].plot(x = 'lon',y ='lat', col = 'year', col_wrap = 4, vmin = -1, vmax = 1)
 
-# %% [markdown]
-# ### 1.10 biome
 
-# %%
-with xr.open_dataset(r'D:/data/official_teow/biome.tif')  as data:
+
+with xr.open_dataset(r'./data/official_teow/biome.tif')  as data:
     biome = data['band_data'][0].drop('spatial_ref')
     biome.name = 'biome'
 biome
@@ -286,10 +241,7 @@ biome = biome.rename({'x':'lon','y':'lat'})
 biome = biome.interp_like(plant_richness, method='nearest').drop('band')
 biome
 
-# %% [markdown]
-# ### 1.11 合并数据
 
-# %%
 dataset_nt = xr.Dataset({
         'kndvi': kndvi_nt_resistance,
         'kndvi2': kndvi_nt_resistance2,
@@ -360,15 +312,13 @@ df_all_kndvi.head()
 df_all_kndvi.describe()
 
 # %%
-df_all_kndvi.to_csv(r'E:/python_output/fsc_drought/df_all_kndvi_events_with_lai.csv', index = False)
+df_all_kndvi.to_csv(r'./python_output/fsc_drought/df_all_kndvi_events_with_lai.csv', index = False)
 
-# %% [markdown]
-# ### 1.12 2000以后的 kndvi
 
 # %%
-with  xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_nt_resistance_after2000.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/kndvi_nt_resistance_after2000.nc') as data:
     kndvi_nt_resistance_after2000 = data['kndvi_resistance']
-with  xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_sh_resistance_after2000.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/kndvi_sh_resistance_after2000.nc') as data:
     kndvi_sh_resistance_after2000 = data['kndvi_resistance']
 kndvi_nt_resistance_after2000
 
@@ -379,9 +329,9 @@ kndvi_sh_resistance_after2000
 kndvi_nt_resistance_after2000[0:4].plot(x = 'lon', y = 'lat', col = 'year', col_wrap = 4, cmap = 'RdYlGn')
 
 # %%
-with  xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_nt_resistance2_after2000.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/kndvi_nt_resistance2_after2000.nc') as data:
     kndvi_nt_resistance2_after2000 = data['kndvi_resistance']
-with  xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_sh_resistance2_after2000.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/kndvi_sh_resistance2_after2000.nc') as data:
     kndvi_sh_resistance2_after2000 = data['kndvi_resistance']
 kndvi_nt_resistance2_after2000
 
@@ -395,13 +345,10 @@ kndvi_nt_resistance2_after2000[0:4].plot(x = 'lon', y = 'lat', col = 'year', col
 spei_nt_drought_use_kndvi_after2000 = spei_nt_annual_drought.sel(year = slice(2000, 2021))
 spei_sh_drought_use_kndvi_after2000 = spei_sh_annual_drought.sel(year = slice(2000, 2020))
 
-# %% [markdown]
-# ### 1.13 2000以后的 水分 蒸腾 和 lst
-
 # %%
-with xr.open_dataset(r'E:/python_output/fsc_drought/smrz_nt_change_kndvi_after2000.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/smrz_nt_change_kndvi_after2000.nc') as data:
     smrz_nt_change_kndvi_after2000 = data['sm_change']
-with xr.open_dataset(r'E:/python_output/fsc_drought/smrz_sh_change_kndvi_after2000.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/smrz_sh_change_kndvi_after2000.nc') as data:
     smrz_sh_change_kndvi_after2000 = data['sm_change']
 smrz_nt_change_kndvi_after2000
 
@@ -414,11 +361,10 @@ smrz_sh_change_kndvi_after2000
 # %%
 smrz_sh_change_kndvi_after2000[0:4].plot(x = 'lon',y = 'lat', col = 'year', col_wrap = 4)
 
-# %%
-## 蒸腾2
-with xr.open_dataset(r'E:/python_output/fsc_drought/et_nt_change2_kndvi_after2000.nc') as data:
+
+with xr.open_dataset(r'./python_output/fsc_drought/et_nt_change2_kndvi_after2000.nc') as data:
     et_nt_change_kndvi_after2000 = data['et_change2']
-with xr.open_dataset(r'E:/python_output/fsc_drought/et_sh_change2_kndvi_after2000.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/et_sh_change2_kndvi_after2000.nc') as data:
     et_sh_change_kndvi_after2000 = data['et_change2']
 et_nt_change_kndvi_after2000
 
@@ -431,11 +377,9 @@ et_sh_change_kndvi_after2000
 # %%
 et_sh_change_kndvi_after2000[0:4].plot(x = 'lon',y='lat',col = 'year', col_wrap = 4, vmin = -0.5, vmax = 0.5)
 
-# %%
-## LST
-with xr.open_dataset(r'E:/python_output/fsc_drought/lst_nt_zs_kndvi_after2000.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/lst_nt_zs_kndvi_after2000.nc') as data:
     lst_nt_zs_kndvi_after2000 = data['lst_zs']
-with xr.open_dataset(r'E:/python_output/fsc_drought/lst_sh_zs_kndvi_after2000.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/lst_sh_zs_kndvi_after2000.nc') as data:
     lst_sh_zs_kndvi_after2000 = data['lst_zs']
 lst_nt_zs_kndvi_after2000[:4].plot(x = 'lon',y ='lat', col = 'year', col_wrap = 4, vmin = -1, vmax = 1)
 
@@ -489,16 +433,11 @@ df_all_kndvi_after2000.head()
 # %%
 df_all_kndvi_after2000.describe()
 
-# %% [markdown]
-# ## 2 sif数据
-
-# %% [markdown]
-# ### 2.1 干旱抵抗力
 
 # %%
-with  xr.open_dataset(r'E:/python_output/fsc_drought/sif_nt_resistance.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/sif_nt_resistance.nc') as data:
     sif_nt_resistance = data['sif_resistance']
-with  xr.open_dataset(r'E:/python_output/fsc_drought/sif_sh_resistance.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/sif_sh_resistance.nc') as data:
     sif_sh_resistance = data['sif_resistance']
 sif_nt_resistance
 
@@ -509,9 +448,9 @@ sif_sh_resistance
 sif_nt_resistance[0:4].plot(x = 'lon', y = 'lat', col = 'year', col_wrap = 4, cmap = 'RdYlGn')
 
 # %%
-with  xr.open_dataset(r'E:/python_output/fsc_drought/sif_nt_resistance2.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/sif_nt_resistance2.nc') as data:
     sif_nt_resistance2 = data['sif_resistance']
-with  xr.open_dataset(r'E:/python_output/fsc_drought/sif_sh_resistance2.nc') as data:
+with  xr.open_dataset(r'./python_output/fsc_drought/sif_sh_resistance2.nc') as data:
     sif_sh_resistance2 = data['sif_resistance']
 sif_nt_resistance2
 
@@ -521,26 +460,20 @@ sif_sh_resistance2
 # %%
 sif_nt_resistance2[0:4].plot(x = 'lon', y = 'lat', col = 'year', col_wrap = 4, cmap = 'RdYlGn')
 
-# %% [markdown]
-# ### 2.2 干旱指数
 
-# %%
+
 spei_nt_drought_use_sif = spei_nt_annual_drought.sel(year = slice(2000, 2022))
 spei_sh_drought_use_sif = spei_sh_annual_drought.sel(year = slice(2000, 2021))
 
-# %%
 spei_nt_drought_use_sif[0:4].plot(x = 'lon', y = 'lat', col = 'year', col_wrap = 4, cmap = 'RdYlGn')
 
-# %%
 spei_sh_drought_use_sif[0:4].plot(x = 'lon', y = 'lat', col = 'year', col_wrap = 4, cmap = 'RdYlGn')
 
-# %% [markdown]
-# ### 2.3 土壤水分 et lst
 
 # %%
-with xr.open_dataset(r'E:/python_output/fsc_drought/smrz_nt_change_sif.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/smrz_nt_change_sif.nc') as data:
     smrz_nt_change_sif = data['sm_change']
-with xr.open_dataset(r'E:/python_output/fsc_drought/smrz_sh_change_sif.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/smrz_sh_change_sif.nc') as data:
     smrz_sh_change_sif = data['sm_change']
 smrz_nt_change_sif
 
@@ -553,11 +486,10 @@ smrz_sh_change_sif
 # %%
 smrz_sh_change_sif[0:4].plot(x = 'lon',y = 'lat', col = 'year', col_wrap = 4)
 
-# %%
-## 蒸腾
-with xr.open_dataset(r'E:/python_output/fsc_drought/et_nt_change2_sif.nc') as data:
+
+with xr.open_dataset(r'./python_output/fsc_drought/et_nt_change2_sif.nc') as data:
     et_nt_change_sif = data['et_change2']
-with xr.open_dataset(r'E:/python_output/fsc_drought/et_sh_change2_sif.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/et_sh_change2_sif.nc') as data:
     et_sh_change_sif = data['et_change2']
 et_nt_change_sif
 
@@ -570,18 +502,14 @@ et_sh_change_sif
 # %%
 et_sh_change_sif[0:4].plot(x = 'lon',y='lat',col = 'year', col_wrap = 4, vmin = -5, vmax = 5)
 
-# %%
-## LST
-with xr.open_dataset(r'E:/python_output/fsc_drought/lst_nt_zs_sif.nc') as data:
+
+with xr.open_dataset(r'./python_output/fsc_drought/lst_nt_zs_sif.nc') as data:
     lst_nt_zs_sif = data['lst_zs']
-with xr.open_dataset(r'E:/python_output/fsc_drought/lst_sh_zs_sif.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/lst_sh_zs_sif.nc') as data:
     lst_sh_zs_sif = data['lst_zs']
 lst_nt_zs_sif[:4].plot(x = 'lon',y ='lat', col = 'year', col_wrap = 4, vmin = -1, vmax = 1)
 
-# %% [markdown]
-# ### 2.4 合并数据
 
-# %%
 dataset_nt_sif = xr.Dataset({
         'sif': sif_nt_resistance,
         'sif2': sif_nt_resistance2,
@@ -629,10 +557,8 @@ df_all_sif.head()
 df_all_sif.describe()
 
 # %%
-df_all_sif.to_csv(r'E:/python_output/fsc_drought/df_all_sif_events_with_lai.csv', index = False)
+df_all_sif.to_csv(r'./python_output/fsc_drought/df_all_sif_events_with_lai.csv', index = False)
 
-# %% [markdown]
-# ## 3 预处理数据
 
 # %%
 df_sm_kndvi = df_all_kndvi.copy()
@@ -688,21 +614,11 @@ df_all_kndvi_after2000.describe()
 df_all_sif.describe()
 
 # %%
-df_all_kndvi.to_csv(r'E:/python_output/fsc_drought/df_all_kndvi_events_data.csv', index = False)
-df_all_kndvi_after2000.to_csv(r'E:/python_output/fsc_drought/df_all_kndvi_events_data_after2000.csv', index = False)
-df_all_sif.to_csv(r'E:/python_output/fsc_drought/df_all_sif_events_data.csv', index = False)
+df_all_kndvi.to_csv(r'./python_output/fsc_drought/df_all_kndvi_events_data.csv', index = False)
+df_all_kndvi_after2000.to_csv(r'./python_output/fsc_drought/df_all_kndvi_events_data_after2000.csv', index = False)
+df_all_sif.to_csv(r'./python_output/fsc_drought/df_all_sif_events_data.csv', index = False)
 
-# %% [markdown]
-# ## 4 kndvi
 
-# %% [markdown]
-# ### 4.1 先做相关
-
-# %% [markdown]
-# #### 4.1.1 因子间的简单相关
-# - 排除那些 sm et 和 lst变化
-
-# %%
 df_all_kndvi.columns
 
 # %%
@@ -777,22 +693,16 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/cor_resistance_kndvi_csc_kndvi_events.png', dpi = 600)
 
-# %% [markdown]
-# ##### 画之前用的 抵抗力指标的简单相关
-
-# %%
 df_all_kndvi.columns
 
-# %%
 drou_resis_cor_kndvi = df_all_kndvi.drop(['lon', 'lat', 'year', 'kndvi', 'biome','sm_change', 'et_change','lst_zs',],
                                          axis=1)[['resis_log','spei','fsc','plant_richness','annual_temp','annual_prec',
                                                   'ai_index','drought_count','drought_duration','drought_severity',
                                                   'soil_cec','soil_clay','cti','sla','wood_den']].corr(method='spearman')
 drou_resis_cor_kndvi
 
-# %%
+
 var_name = ['Drought resistance','SPEI','Forest structural complexity','Tree species richness','Mean annual temperature','Mean annual precipitation','Aridity index',
             'Drought counts','Mean drought duration','Mean drought severity','Cation exchange capacity',
             'Clay content','Compound topographic index','Specific leaf area','Wood density']
@@ -856,12 +766,7 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/cor_resistance_kndvi_csc_kndvi_events.png', dpi = 600)
 
-# %% [markdown]
-# ##### 画之后用的 Ydrou/Ymean 抵抗力指标的简单相关
-
-# %%
 df_all_kndvi.columns
 
 # %%
@@ -934,8 +839,6 @@ plt.tight_layout()
 
 plt.savefig('result_figure/figure_use_20260105/cor_resistance_kndvi_csc_kndvi2_events.png', dpi = 600)
 
-# %% [markdown]
-# ##### 画之后用的 Ydrou/Ymean log 抵抗力指标的简单相关
 
 # %%
 df_all_kndvi.columns
@@ -1007,8 +910,6 @@ plt.tight_layout()
 
 plt.savefig('result_figure/figure_use_20260105/cor_resistance_kndvi_csc_kndvi2_events_log.png', dpi = 600)
 
-# %% [markdown]
-# #### 4.1.2 偏相关
 
 # %%
 import pingouin as pg
@@ -1040,13 +941,11 @@ df_all_kndvi.biome.value_counts().index[:9]
 # %%
 df_all_kndvi.columns
 
-# %%
-## 把整个 偏相关的部分写成一个函数
+
 def biome_partial_cor(df, var1, var2, z, y): 
 
     grouped_resistance_by_bi = df.groupby("biome")
 
-    ## 先算简单相关
     bi_cor_var1 = {}
     bi_cor_var2 = {}
     for bi_n in df.biome.value_counts().index[:9]:
@@ -1084,7 +983,6 @@ def biome_partial_cor(df, var1, var2, z, y):
     bi_cor_list.append(0)
     bi_cor_pd_p = pd.DataFrame({var1:var1_cor_list, var2:var2_cor_list, 'biome':bi_cor_list})
 
-    ## 偏相关
     bi_pd_var1_var2_pcor = {}
     bi_pd_var1_z_pcor = {}
     bi_pd_var2_var1_pcor = {}
@@ -1158,81 +1056,17 @@ def biome_partial_cor(df, var1, var2, z, y):
 # %%
 biome_partial_cor(df_all_kndvi, 'fsc', 'plant_richness', 'annual_prec', 'resis_log')
 
-# %%
-'''
-bi_cor_fsc= {}
-bi_cor_rich = {}
-for bi_n in df_all_kndvi.biome.value_counts().index[:9]:
-    print(bi_n)
-    bi_group_df = grouped_resistance_kndvi_by_bi.get_group(bi_n)
-    bi_cor_fsc[bi_n] = {'r':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['fsc'])[0],
-                        'p-val':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['fsc'])[1]}
-    bi_cor_rich[bi_n] = {'r':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['plant_richness'])[0],
-                        'p-val':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['plant_richness'])[1]}
-    
 
-bi_cor_fsc
-'''
-
-# %%
-#bi_cor_rich
-
-# %%
-#stats.spearmanr(df_all_kndvi['resis_log'],df_all_kndvi['fsc'])
-
-# %%
-#stats.spearmanr(df_all_kndvi['resis_log'],df_all_kndvi['plant_richness'])
-
-# %%
-'''
-bi_pd_fsc_cor_df = pd.DataFrame(bi_cor_fsc).T
-bi_pd_fsc_cor_df['var'] = 'fsc'
-bi_pd_fsc_cor_df = bi_pd_fsc_cor_df.sort_index()
-bi_pd_fsc_cor_df
-'''
-
-# %%
-'''
-bi_pd_rich_cor_df = pd.DataFrame(bi_cor_rich).T
-bi_pd_rich_cor_df['var'] = 'rich'
-bi_pd_rich_cor_df = bi_pd_rich_cor_df.sort_index()
-bi_pd_rich_cor_df
-'''
-
-# %%
-'''
-fsc_cor_list = list(bi_pd_fsc_cor_df.r)
-fsc_cor_list.append(0.447)
-rich_cor_list = list(bi_pd_rich_cor_df.r)
-rich_cor_list.append(0.408)
-bi_cor_list = list(bi_pd_rich_cor_df.index)
-bi_cor_list.append(0)
-'''
-
-# %%
-'''
-bi_cor_pd_r = pd.DataFrame({'fsc':fsc_cor_list, 'rich':rich_cor_list, 'biome':bi_cor_list})
-bi_cor_pd_r
-'''
-
-# %%
-'''
 fsc_cor_list = list(bi_pd_fsc_cor_df['p-val'])
 fsc_cor_list.append(0)
 rich_cor_list = list(bi_pd_rich_cor_df['p-val'])
 rich_cor_list.append(0)
 bi_cor_list = list(bi_pd_rich_cor_df.index)
 bi_cor_list.append(0)
-'''
 
-# %%
-'''
 bi_cor_pd_p = pd.DataFrame({'fsc':fsc_cor_list, 'rich':rich_cor_list, 'biome':bi_cor_list})
 bi_cor_pd_p
-'''
 
-# %%
-'''
 bi_pd_fsc_rich_pcor = {}
 bi_pd_fsc_prec_pcor = {}
 bi_pd_rich_fsc_pcor = {}
@@ -1248,113 +1082,8 @@ for bi_n in df_all_kndvi.biome.value_counts().index[:9]:
     bi_pd_rich_fsc_pcor[bi_n] = {'r':rich_pcor['r'].values[0], 'p-val': rich_pcor['p-val'].values[0]}
     bi_pd_fsc_prec_pcor[bi_n] = {'r':fsc_prec_pcor['r'].values[0], 'p-val': fsc_prec_pcor['p-val'].values[0]}
     bi_pd_rich_prec_pcor[bi_n] = {'r':rich_prec_pcor['r'].values[0], 'p-val': rich_prec_pcor['p-val'].values[0]}
-'''
 
-# %%
-# bi_pd_fsc_rich_pcor
 
-# %%
-# bi_pd_fsc_prec_pcor
-
-# %%
-# bi_pd_rich_fsc_pcor
-
-# %%
-# bi_pd_rich_prec_pcor
-
-# %%
-# pg.partial_corr(data = df_all_kndvi,y='resis_log',x='plant_richness',covar=['annual_prec'], method='spearman').round(3)
-
-# %%
-# pg.partial_corr(data = df_all_kndvi,y='resis_log',x='plant_richness',covar=['fsc'], method='spearman').round(3)
-
-# %%
-# pg.partial_corr(data = df_all_kndvi,y='resis_log',x='fsc',covar=['annual_prec'], method='spearman').round(3)
-
-# %%
-# pg.partial_corr(data = df_all_kndvi,y='resis_log',x='fsc',covar=['plant_richness'], method='spearman').round(3)
-
-# %%
-'''
-bi_pd_fsc_rich_pcor_df = pd.DataFrame(bi_pd_fsc_rich_pcor).T
-bi_pd_fsc_rich_pcor_df['var'] = 'fsc_rich'
-bi_pd_fsc_rich_pcor_df = bi_pd_fsc_rich_pcor_df.sort_index()
-bi_pd_fsc_rich_pcor_df
-'''
-
-# %%
-'''
-bi_pd_rich_fsc_pcor_df = pd.DataFrame(bi_pd_rich_fsc_pcor).T
-bi_pd_rich_fsc_pcor_df['var'] = 'rich_fsc'
-bi_pd_rich_fsc_pcor_df = bi_pd_rich_fsc_pcor_df.sort_index()
-bi_pd_rich_fsc_pcor_df
-'''
-
-# %%
-'''
-bi_pd_fsc_prec_pcor_df = pd.DataFrame(bi_pd_fsc_prec_pcor).T
-bi_pd_fsc_prec_pcor_df['var'] = 'fsc_prec'
-bi_pd_fsc_prec_pcor_df = bi_pd_fsc_prec_pcor_df.sort_index()
-bi_pd_fsc_prec_pcor_df
-'''
-
-# %%
-'''
-bi_pd_rich_prec_pcor_df = pd.DataFrame(bi_pd_rich_prec_pcor).T
-bi_pd_rich_prec_pcor_df['var'] = 'rich_prec'
-bi_pd_rich_prec_pcor_df = bi_pd_rich_prec_pcor_df.sort_index()
-bi_pd_rich_prec_pcor_df
-'''
-
-# %%
-'''
-fsc_rich_list = list(bi_pd_fsc_rich_pcor_df.r)
-fsc_rich_list.append(0.455)
-fsc_prec_list = list(bi_pd_fsc_prec_pcor_df.r)
-fsc_prec_list.append(0.267)
-rich_fsc_list = list(bi_pd_rich_fsc_pcor_df.r)
-rich_fsc_list.append(0.417)
-rich_prec_list = list(bi_pd_rich_prec_pcor_df.r)
-rich_prec_list.append(0.011)
-bi_pcor_list = list(bi_pd_rich_prec_pcor_df.index)
-bi_pcor_list.append(0)
-'''
-
-# %%
-#bi_pcor_df = pd.DataFrame({'fsc_prec':fsc_prec_list, 'fsc_rich':fsc_rich_list,'rich_prec':rich_prec_list, 'rich_fsc':rich_fsc_list, 'biome':bi_pcor_list})
-#bi_pcor_df
-
-# %%
-'''
-fsc_rich_list = list(bi_pd_fsc_rich_pcor_df['p-val'])
-fsc_rich_list.append(0)
-fsc_prec_list = list(bi_pd_fsc_prec_pcor_df['p-val'])
-fsc_prec_list.append(0)
-rich_fsc_list = list(bi_pd_rich_fsc_pcor_df['p-val'])
-rich_fsc_list.append(0)
-rich_prec_list = list(bi_pd_rich_prec_pcor_df['p-val'])
-rich_prec_list.append(0.03)
-bi_pcor_list = list(bi_pd_rich_prec_pcor_df.index)
-bi_pcor_list.append(0)
-'''
-
-# %%
-#bi_pval_df = pd.DataFrame({'fsc_prec':fsc_prec_list, 'fsc_rich':fsc_rich_list,'rich_prec':rich_prec_list, 'rich_fsc':rich_fsc_list, 'biome':bi_pcor_list})
-#bi_pval_df
-
-# %%
-#bi_pd_pcor_all = pd.merge(bi_cor_pd_r,bi_pcor_df,on='biome',how='left')
-#bi_pd_pcor_all
-
-# %%
-#bi_pd_pval_all = pd.merge(bi_cor_pd_p,bi_pval_df,on='biome',how='left')
-#bi_pd_pval_all
-
-# %%
-#bi_pd_pcor_all.to_csv('E:/python_output/fsc_drought/bi_pd_pcor_all_kndvi_mid_event.csv', index = False)
-#bi_pd_pval_all.to_csv('E:/python_output/fsc_drought/bi_pd_pval_all_kndvi_mid_event.csv', index = False)
-
-# %%
 kndvi_pcor_result = biome_partial_cor(df_all_kndvi, 'fsc', 'plant_richness', 'annual_prec', 'resis_log')
 kndvi_pcor_result
 
@@ -1376,11 +1105,6 @@ for i in [5,4,3,2,1,0]:
             ax.text(i,j, '**', ha='center', va = 'center')
         elif kndvi_pcor_result['p-val'][draw_col].iloc[j,i] < 0.05:
             ax.text(i,j, '*', ha='center', va = 'center')
-#for k in range(8):
-#    ax.text(6.5,k, '('+str(round(ai_biome[bi_pd_pcor_all.biome[k]],3))+ ' ' + str(round(ai_bi_std[bi_pd_pcor_all.biome[k]],3)) + ')' , ha='right', va = 'center', color = 'blue')
-    #ax.text(2.5,k, round(ai_ld_std[ld_pd_pcor.ld[k]],2), ha='right', va = 'center', color = 'blue')
-#ax.text(6.5, 8, 'Aridity Index',ha='right', va = 'center', color = 'blue')
-#ax.text(6.5, 7.5, '(Mean    Std)',ha='right', va = 'center', color = 'blue')
 
 ax.text(1, 10.1, 'Tree species richness',ha='center', va = 'center', color = 'black', size=18)
 ax.text(4, 10.1, 'Forest structural complexity',ha='center', va = 'center', color = 'black',size=18)
@@ -1395,8 +1119,6 @@ cb.set_label(label='Correlation Coefficients')
 cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
-
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi_csc_events.png', dpi = 600)
 
 # %%
 kndvi2_pcor_result = biome_partial_cor(df_all_kndvi, 'fsc', 'plant_richness', 'annual_prec', 'kndvi2')
@@ -1440,7 +1162,6 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi_csc_events.png', dpi = 600)
 
 # %%
 kndvi2_log_pcor_result = biome_partial_cor(df_all_kndvi, 'fsc', 'plant_richness', 'annual_prec', 'resis_log2')
@@ -1484,10 +1205,6 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi_csc_events.png', dpi = 600)
-
-# %% [markdown]
-# #### 4.1.3 FSC 和 LAI的偏相关
 
 # %%
 df_all_kndvi.columns
@@ -1534,8 +1251,6 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi_csc_events.png', dpi = 600)
-
 # %%
 kndvi2_lai_pcor_result = biome_partial_cor(df_all_kndvi, 'fsc', 'lai_gs', 'annual_prec', 'kndvi2')
 kndvi2_lai_pcor_result
@@ -1578,9 +1293,6 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi_csc_events.png', dpi = 600)
-
-# %%
 kndvi2_log_lai_pcor_result = biome_partial_cor(df_all_kndvi, 'fsc', 'lai_gs', 'annual_prec', 'resis_log2')
 kndvi2_log_lai_pcor_result
 
@@ -1622,240 +1334,12 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi_csc_events.png', dpi = 600)
-
-# %%
-'''
-bi_cor_fsc= {}
-bi_cor_lai = {}
-for bi_n in df_all_kndvi.biome.value_counts().index[:9]:
-    print(bi_n)
-    bi_group_df = grouped_resistance_kndvi_by_bi.get_group(bi_n)
-    bi_cor_fsc[bi_n] = {'r':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['fsc'])[0],
-                        'p-val':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['fsc'])[1]}
-    bi_cor_lai[bi_n] = {'r':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['lai_gs'])[0],
-                        'p-val':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['lai_gs'])[1]}
-bi_cor_fsc
-'''
-
-# %%
-# bi_cor_lai
-
-# %%
-# stats.spearmanr(df_all_kndvi['resis_log'],df_all_kndvi['fsc'])
-
-# %%
-# stats.spearmanr(df_all_kndvi['resis_log'],df_all_kndvi['lai_gs'])
-
-# %%
-'''
-bi_pd_fsc_cor_df = pd.DataFrame(bi_cor_fsc).T
-bi_pd_fsc_cor_df['var'] = 'fsc'
-bi_pd_fsc_cor_df = bi_pd_fsc_cor_df.sort_index()
-bi_pd_fsc_cor_df
-'''
-
-# %%
-'''
-bi_pd_lai_cor_df = pd.DataFrame(bi_cor_lai).T
-bi_pd_lai_cor_df['var'] = 'lai'
-bi_pd_lai_cor_df = bi_pd_lai_cor_df.sort_index()
-bi_pd_lai_cor_df
-'''
-
-# %%
-'''
-fsc_cor_list = list(bi_pd_fsc_cor_df.r)
-fsc_cor_list.append(0.448)
-lai_cor_list = list(bi_pd_lai_cor_df.r)
-lai_cor_list.append(0.634)
-bi_cor_list = list(bi_pd_lai_cor_df.index)
-bi_cor_list.append(0)
-bi_cor_pd_r = pd.DataFrame({'fsc':fsc_cor_list, 'lai':lai_cor_list, 'biome':bi_cor_list})
-bi_cor_pd_r
-'''
-
-# %%
-'''
-fsc_cor_list = list(bi_pd_fsc_cor_df['p-val'])
-fsc_cor_list.append(0)
-lai_cor_list = list(bi_pd_lai_cor_df['p-val'])
-lai_cor_list.append(0)
-bi_cor_list = list(bi_pd_lai_cor_df.index)
-bi_cor_list.append(0)
-bi_cor_pd_p = pd.DataFrame({'fsc':fsc_cor_list, 'lai':lai_cor_list, 'biome':bi_cor_list})
-bi_cor_pd_p
-'''
-
-# %%
-'''
-bi_pd_fsc_lai_pcor = {}
-bi_pd_fsc_prec_pcor = {}
-bi_pd_lai_fsc_pcor = {}
-bi_pd_lai_prec_pcor = {}
-for bi_n in df_all_kndvi.biome.value_counts().index[:9]:
-    print(bi_n)
-    bi_group_df = grouped_resistance_kndvi_by_bi.get_group(bi_n)
-    fsc_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='fsc',covar=['lai_gs'],method='spearman').round(4)
-    fsc_prec_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='fsc',covar=['annual_prec'],method='spearman').round(4)
-    lai_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='lai_gs',covar=['fsc'],method='spearman').round(4)
-    lai_prec_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='lai_gs',covar=['annual_prec'],method='spearman').round(4)
-    bi_pd_fsc_lai_pcor[bi_n] = {'r':fsc_pcor['r'].values[0], 'p-val': fsc_pcor['p-val'].values[0]}
-    bi_pd_lai_fsc_pcor[bi_n] = {'r':lai_pcor['r'].values[0], 'p-val': lai_pcor['p-val'].values[0]}
-    bi_pd_fsc_prec_pcor[bi_n] = {'r':fsc_prec_pcor['r'].values[0], 'p-val': fsc_prec_pcor['p-val'].values[0]}
-    bi_pd_lai_prec_pcor[bi_n] = {'r':lai_prec_pcor['r'].values[0], 'p-val': lai_prec_pcor['p-val'].values[0]}
-bi_pd_fsc_lai_pcor
-'''
-
-# %%
-# bi_pd_fsc_prec_pcor
-
-# %%
-# bi_pd_lai_fsc_pcor
-
-# %%
-# bi_pd_lai_prec_pcor
-
-# %%
-# pg.partial_corr(data = df_all_kndvi,y='resis_log',x='lai_gs',covar=['annual_prec'], method='spearman').round(3)
-
-# %%
-# pg.partial_corr(data = df_all_kndvi,y='resis_log',x='lai_gs',covar=['fsc'], method='spearman').round(3)
-
-# %%
-# pg.partial_corr(data = df_all_kndvi,y='resis_log',x='fsc',covar=['annual_prec'], method='spearman').round(3)
-
-# %%
-# pg.partial_corr(data = df_all_kndvi,y='resis_log',x='fsc',covar=['lai_gs'], method='spearman').round(3)
-
-# %%
-'''
-bi_pd_fsc_lai_pcor_df = pd.DataFrame(bi_pd_fsc_lai_pcor).T
-bi_pd_fsc_lai_pcor_df['var'] = 'fsc_lai'
-bi_pd_fsc_lai_pcor_df = bi_pd_fsc_lai_pcor_df.sort_index()
-bi_pd_fsc_lai_pcor_df
-'''
-
-# %%
-'''
-bi_pd_lai_fsc_pcor_df = pd.DataFrame(bi_pd_lai_fsc_pcor).T
-bi_pd_lai_fsc_pcor_df['var'] = 'lai_fsc'
-bi_pd_lai_fsc_pcor_df = bi_pd_lai_fsc_pcor_df.sort_index()
-bi_pd_lai_fsc_pcor_df
-'''
-
-# %%
-'''
-bi_pd_fsc_prec_pcor_df = pd.DataFrame(bi_pd_fsc_prec_pcor).T
-bi_pd_fsc_prec_pcor_df['var'] = 'fsc_prec'
-bi_pd_fsc_prec_pcor_df = bi_pd_fsc_prec_pcor_df.sort_index()
-bi_pd_fsc_prec_pcor_df
-'''
-
-# %%
-'''
-bi_pd_lai_prec_pcor_df = pd.DataFrame(bi_pd_lai_prec_pcor).T
-bi_pd_lai_prec_pcor_df['var'] = 'lai_prec'
-bi_pd_lai_prec_pcor_df = bi_pd_lai_prec_pcor_df.sort_index()
-bi_pd_lai_prec_pcor_df
-'''
-
-# %%
-'''
-fsc_lai_list = list(bi_pd_fsc_lai_pcor_df.r)
-fsc_lai_list.append(0.076)
-fsc_prec_list = list(bi_pd_fsc_prec_pcor_df.r)
-fsc_prec_list.append(0.276)
-lai_fsc_list = list(bi_pd_lai_fsc_pcor_df.r)
-lai_fsc_list.append(0.506)
-lai_prec_list = list(bi_pd_lai_prec_pcor_df.r)
-lai_prec_list.append(0.405)
-bi_pcor_list = list(bi_pd_lai_prec_pcor_df.index)
-bi_pcor_list.append(0)
-bi_pcor_df = pd.DataFrame({'fsc_prec':fsc_prec_list, 'fsc_lai':fsc_lai_list,'lai_prec':lai_prec_list, 'lai_fsc':lai_fsc_list, 'biome':bi_pcor_list})
-bi_pcor_df
-'''
-
-# %%
-'''
-fsc_lai_list = list(bi_pd_fsc_lai_pcor_df['p-val'])
-fsc_lai_list.append(0)
-fsc_prec_list = list(bi_pd_fsc_prec_pcor_df['p-val'])
-fsc_prec_list.append(0)
-lai_fsc_list = list(bi_pd_lai_fsc_pcor_df['p-val'])
-lai_fsc_list.append(0)
-lai_prec_list = list(bi_pd_lai_prec_pcor_df['p-val'])
-lai_prec_list.append(0)
-bi_pcor_list = list(bi_pd_lai_prec_pcor_df.index)
-bi_pcor_list.append(0)
-bi_pval_df = pd.DataFrame({'fsc_prec':fsc_prec_list, 'fsc_lai':fsc_lai_list,'lai_prec':lai_prec_list, 'lai_fsc':lai_fsc_list, 'biome':bi_pcor_list})
-bi_pval_df
-'''
-
-# %%
-'''
-bi_pd_pcor_all = pd.merge(bi_cor_pd_r,bi_pcor_df,on='biome',how='left')
-bi_pd_pcor_all
-'''
-
-# %%
-'''
-bi_pd_pval_all = pd.merge(bi_cor_pd_p,bi_pval_df,on='biome',how='left')
-bi_pd_pval_all
-'''
-
-# %%
-'''
-draw_col = ['lai','lai_prec','lai_fsc','fsc','fsc_prec','fsc_lai']
-
-fig, ax = plt.subplots(figsize=(16,10))
-
-im = ax.imshow(bi_pd_pcor_all[draw_col], vmin=-0.5, vmax=0.5, cmap='PiYG_r', aspect=0.6)
-ax.set_xticks(ticks=np.arange(6))
-ax.set_yticks(ticks=np.arange(10))
-ax.set_xticklabels(['[ ]','PREC','FSC','[ ]','PREC','LAI'])
-ax.set_yticklabels([biome_short_dic[bi_n] for bi_n in bi_pd_pcor_all.biome])
-
-for i in [5,4,3,2,1,0]:
-    for j in range(10):
-        if bi_pd_pval_all[draw_col].iloc[j,i] < 0.001:
-            ax.text(i,j, '***', ha='center', va = 'center')
-        elif bi_pd_pval_all[draw_col].iloc[j,i] < 0.01:
-            ax.text(i,j, '**', ha='center', va = 'center')
-        elif bi_pd_pval_all[draw_col].iloc[j,i] < 0.05:
-            ax.text(i,j, '*', ha='center', va = 'center')
-#for k in range(8):
-#    ax.text(6.5,k, '('+str(round(ai_biome[bi_pd_pcor_all.biome[k]],3))+ ' ' + str(round(ai_bi_std[bi_pd_pcor_all.biome[k]],3)) + ')' , ha='right', va = 'center', color = 'blue')
-    #ax.text(2.5,k, round(ai_ld_std[ld_pd_pcor.ld[k]],2), ha='right', va = 'center', color = 'blue')
-#ax.text(6.5, 8, 'Aridity Index',ha='right', va = 'center', color = 'blue')
-#ax.text(6.5, 7.5, '(Mean    Std)',ha='right', va = 'center', color = 'blue')
-
-ax.text(1, 10.1, 'Leaf area index',ha='center', va = 'center', color = 'black', size=18)
-ax.text(4, 10.1, 'Forest structural complexity',ha='center', va = 'center', color = 'black',size=18)
-
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.spines['left'].set_visible(False)
-ax.spines['bottom'].set_visible(False)
-
-cb = plt.colorbar(im, shrink=0.7, pad = 0.05)
-cb.set_label(label='Correlation Coefficients')
-cb.outline.set_linewidth(0.05)
-
-plt.tight_layout()
-'''
-
-# %% [markdown]
-# ### 4.2 fsc对 抵抗力  et sm lst的关系画图
-
-# %%
 print(df_all_kndvi.fsc.max(),df_all_kndvi.fsc.min())
 
-# %%
+
 df_all_kndvi['fsc_bins'] = pd.cut(df_all_kndvi.fsc, bins = [0,9.25,9.75,10.25,10.75,11.25,13], labels= [9,9.5,10,10.5,11,11.5])
 pd.unique(df_all_kndvi['fsc_bins'])
 
-# %%
 df_all_kndvi.plant_richness.max()
 
 # %%
@@ -1878,28 +1362,25 @@ biome_dic2 = {1:'Trop.&Subtrop. Moist Broad. Forests',
           14:'Mangroves',
           0:'All'}
 
-# %% [markdown]
-# #### 4.2.1 抵抗力 
 
-# %%
 fig, axes = plt.subplots(3,1, figsize=(10,15))
 
 out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markeredgecolor = 'none' )
 boxprops = dict( color='aquamarine', facecolor = 'aquamarine')
 medianprops = dict(linewidth=2.5, color='forestgreen')
 
-## resistance  vs  biome
+
 labels_bi = np.unique(df_all_kndvi.biome)
 bi_dfs = [df_all_kndvi.resis_log[df_all_kndvi.biome == labels_bi_n] for labels_bi_n in labels_bi if len(df_all_kndvi.resis_log[df_all_kndvi.biome == labels_bi_n]) > 15 ]
 bi_dfs_len = np.asarray([ len(bi_dfs_n) for bi_dfs_n in bi_dfs if len(bi_dfs_n) >15])
-#print(fsc_dfs_len)
+
 labels_bi_use = [  labels_bi_n for labels_bi_n in labels_bi if len(df_all_kndvi.resis_log[df_all_kndvi.biome == labels_bi_n]) > 15]
 axes[0].boxplot(bi_dfs, flierprops=out_values, widths =0.5, boxprops = boxprops, medianprops=medianprops, patch_artist =True)
 
 for j in range(len(labels_bi_use)):
     axes[0].text(x = j+1, y = 6.5, s = 'n='+ str(bi_dfs_len[j]) ,horizontalalignment='center', size = 12)
 
-#axes[0].set_xlabel('IGCP Landcover')
+
 axes[0].set_ylabel('Resistance (log)')
 axes[0].set_xticklabels([])
 axes[0].set_ylim(0,7)
@@ -1907,18 +1388,17 @@ axes[0].set_xlim(0.2,13.8)
 axes[0].grid(c = 'lightgray', alpha = 0.3)
 axes[0].set_title('(a)', loc='left', size = 14)
 
-## richness  vs  ld
+
 labels_bi = np.unique(df_all_kndvi.biome)
 bi_dfs = [df_all_kndvi.plant_richness[df_all_kndvi.biome == labels_bi_n] for labels_bi_n in labels_bi if len(df_all_kndvi.plant_richness[df_all_kndvi.biome == labels_bi_n]) > 15 ]
 bi_dfs_len = np.asarray([ len(bi_dfs_n) for bi_dfs_n in bi_dfs if len(bi_dfs_n) >15])
-#print(fsc_dfs_len)
+
 labels_bi_use = [  labels_bi_n for labels_bi_n in labels_bi if len(df_all_kndvi.plant_richness[df_all_kndvi.biome == labels_bi_n]) > 15]
 axes[1].boxplot(bi_dfs, flierprops=out_values, widths =0.5, boxprops = boxprops, medianprops=medianprops, patch_artist =True)
 
 for j in range(len(labels_bi_use)):
     axes[1].text(x = j+1, y = 6, s = 'n='+ str(bi_dfs_len[j]) ,horizontalalignment='center', size = 12)
 
-#axes[1].set_xlabel('IGCP Landcover')
 axes[1].set_ylabel('Tree species richness')
 axes[1].set_xticklabels([])
 axes[1].set_ylim(0,6.5)
@@ -1926,12 +1406,10 @@ axes[1].set_xlim(0.2,13.8)
 axes[1].grid(c = 'lightgray', alpha = 0.3)
 axes[1].set_title('(b)', loc='left', size = 14)
 
-## fsc  vs  ld
 labels_bi = np.unique(df_all_kndvi.biome)
 bi_dfs = [df_all_kndvi.fsc[df_all_kndvi.biome == labels_bi_n] for labels_bi_n in labels_bi if len(df_all_kndvi.fsc[df_all_kndvi.biome == labels_bi_n]) > 15 ]
 bi_dfs_len = np.asarray([ len(bi_dfs_n) for bi_dfs_n in bi_dfs if len(bi_dfs_n) >15])
 bi_dfs_names = [ biome_dic2[labels_bi_n] for labels_bi_n in labels_bi if len(df_all_kndvi.fsc[df_all_kndvi.biome == labels_bi_n]) > 15 ]
-#print(fsc_dfs_len)
 labels_bi_use = [  labels_bi_n for labels_bi_n in labels_bi if len(df_all_kndvi.fsc[df_all_kndvi.biome == labels_bi_n]) > 15]
 axes[2].boxplot(bi_dfs, flierprops=out_values, widths =0.5, boxprops = boxprops, medianprops=medianprops, patch_artist =True)
 
@@ -1958,11 +1436,11 @@ out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markered
 boxprops = dict( color='aquamarine', facecolor = 'aquamarine')
 medianprops = dict(linewidth=2.5, color='forestgreen')
 
-## resistance  vs  fsc
+
 labels_fsc = np.unique(df_all_kndvi.fsc_bins)
 fsc_dfs = [df_all_kndvi.resis_log[df_all_kndvi.fsc_bins == labels_fsc_n] for labels_fsc_n in labels_fsc if len(df_all_kndvi.resis_log[df_all_kndvi.fsc_bins == labels_fsc_n]) > 15 ]
 fsc_dfs_len = np.asarray([ len(fsc_dfs_n) for fsc_dfs_n in fsc_dfs if len(fsc_dfs_n) >15])
-#print(fsc_dfs_len)
+
 labels_fsc_use = [  labels_fsc_n for labels_fsc_n in labels_fsc if len(df_all_kndvi.resis_log[df_all_kndvi.fsc_bins == labels_fsc_n]) > 15]
 axes[1].boxplot(fsc_dfs, positions = labels_fsc_use, flierprops=out_values, widths =0.25, boxprops = boxprops, medianprops=medianprops, patch_artist =True)
 
@@ -1976,7 +1454,6 @@ axes[1].set_ylim(0,7)
 axes[1].set_xlim(8.7,11.8)
 axes[1].grid(c = 'lightgray', alpha = 0.3)
 
-## richness  vs  resistance
 labels_rich = np.unique(df_all_kndvi.rich_bins)
 rich_dfs = [df_all_kndvi.resis_log[df_all_kndvi.rich_bins == labels_rich_n] for labels_rich_n in labels_rich if len(df_all_kndvi.resis_log[df_all_kndvi.rich_bins == labels_rich_n]) > 15 ]
 rich_dfs_len = np.asarray([ len(rich_dfs_n) for rich_dfs_n in rich_dfs if len(rich_dfs_n) >15])
@@ -1992,8 +1469,6 @@ axes[0].set_ylabel('Resistance (log)')
 axes[0].set_title('(a)', loc='left', size = 14)
 axes[0].set_ylim(0,7)
 axes[0].grid(c = 'lightgray', alpha = 0.3)
-
-## richness  vs  fsc
 
 rich_fsc = [df_all_kndvi.fsc[df_all_kndvi.rich_bins == labels_rich_n] for labels_rich_n in labels_rich if len(df_all_kndvi.fsc[df_all_kndvi.rich_bins == labels_rich_n]) > 15 ]
 rich_fsc_len = np.asarray([ len(rich_fsc_n) for rich_fsc_n in rich_fsc if len(rich_fsc_n) >15])
@@ -2175,10 +1650,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20260105/richness_resistance_biome_fsc.png', dpi = 600)
 
-# %% [markdown]
-# ##### kndvi2 画图
 
-# %%
 fig, axes = plt.subplots(3,1, figsize=(10,15))
 
 out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markeredgecolor = 'none' )
@@ -2204,7 +1676,6 @@ axes[0].set_xlim(0.2,13.8)
 axes[0].grid(c = 'lightgray', alpha = 0.3)
 axes[0].set_title('(a)', loc='left', size = 14)
 
-## richness  vs  ld
 labels_bi = np.unique(df_all_kndvi.biome)
 bi_dfs = [df_all_kndvi.plant_richness[df_all_kndvi.biome == labels_bi_n] for labels_bi_n in labels_bi if len(df_all_kndvi.plant_richness[df_all_kndvi.biome == labels_bi_n]) > 15 ]
 bi_dfs_len = np.asarray([ len(bi_dfs_n) for bi_dfs_n in bi_dfs if len(bi_dfs_n) >15])
@@ -2215,7 +1686,6 @@ axes[1].boxplot(bi_dfs, flierprops=out_values, widths =0.5, boxprops = boxprops,
 for j in range(len(labels_bi_use)):
     axes[1].text(x = j+1, y = 6, s = 'n='+ str(bi_dfs_len[j]) ,horizontalalignment='center', size = 12)
 
-#axes[1].set_xlabel('IGCP Landcover')
 axes[1].set_ylabel('Tree species richness')
 axes[1].set_xticklabels([])
 axes[1].set_ylim(0,6.5)
@@ -2223,12 +1693,12 @@ axes[1].set_xlim(0.2,13.8)
 axes[1].grid(c = 'lightgray', alpha = 0.3)
 axes[1].set_title('(b)', loc='left', size = 14)
 
-## fsc  vs  ld
+
 labels_bi = np.unique(df_all_kndvi.biome)
 bi_dfs = [df_all_kndvi.fsc[df_all_kndvi.biome == labels_bi_n] for labels_bi_n in labels_bi if len(df_all_kndvi.fsc[df_all_kndvi.biome == labels_bi_n]) > 15 ]
 bi_dfs_len = np.asarray([ len(bi_dfs_n) for bi_dfs_n in bi_dfs if len(bi_dfs_n) >15])
 bi_dfs_names = [ biome_dic2[labels_bi_n] for labels_bi_n in labels_bi if len(df_all_kndvi.fsc[df_all_kndvi.biome == labels_bi_n]) > 15 ]
-#print(fsc_dfs_len)
+
 labels_bi_use = [  labels_bi_n for labels_bi_n in labels_bi if len(df_all_kndvi.fsc[df_all_kndvi.biome == labels_bi_n]) > 15]
 axes[2].boxplot(bi_dfs, flierprops=out_values, widths =0.5, boxprops = boxprops, medianprops=medianprops, patch_artist =True)
 
@@ -2255,7 +1725,7 @@ out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markered
 boxprops = dict( color='aquamarine', facecolor = 'aquamarine')
 medianprops = dict(linewidth=2.5, color='forestgreen')
 
-## resistance  vs  fsc
+
 labels_fsc = np.unique(df_all_kndvi.fsc_bins)
 fsc_dfs = [df_all_kndvi.kndvi2[df_all_kndvi.fsc_bins == labels_fsc_n] for labels_fsc_n in labels_fsc if len(df_all_kndvi.kndvi2[df_all_kndvi.fsc_bins == labels_fsc_n]) > 15 ]
 fsc_dfs_len = np.asarray([ len(fsc_dfs_n) for fsc_dfs_n in fsc_dfs if len(fsc_dfs_n) >15])
@@ -2273,7 +1743,6 @@ axes[1].set_ylim(0.4,1.09)
 axes[1].set_xlim(8.7,11.8)
 axes[1].grid(c = 'lightgray', alpha = 0.3)
 
-## richness  vs  resistance
 labels_rich = np.unique(df_all_kndvi.rich_bins)
 rich_dfs = [df_all_kndvi.kndvi2[df_all_kndvi.rich_bins == labels_rich_n] for labels_rich_n in labels_rich if len(df_all_kndvi.kndvi2[df_all_kndvi.rich_bins == labels_rich_n]) > 15 ]
 rich_dfs_len = np.asarray([ len(rich_dfs_n) for rich_dfs_n in rich_dfs if len(rich_dfs_n) >15])
@@ -2290,7 +1759,6 @@ axes[0].set_title('(a)', loc='left', size = 14)
 axes[0].set_ylim(0.4,1.09)
 axes[0].grid(c = 'lightgray', alpha = 0.3)
 
-## richness  vs  fsc
 
 rich_fsc = [df_all_kndvi.fsc[df_all_kndvi.rich_bins == labels_rich_n] for labels_rich_n in labels_rich if len(df_all_kndvi.fsc[df_all_kndvi.rich_bins == labels_rich_n]) > 15 ]
 rich_fsc_len = np.asarray([ len(rich_fsc_n) for rich_fsc_n in rich_fsc if len(rich_fsc_n) >15])
@@ -2400,10 +1868,8 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20260105/richness_resistance_biome_kndvi2.png', dpi = 600)
 
-# %% [markdown]
-# ##### kndvi2 log 画图
 
-# %%
+
 fig, axes = plt.subplots(3,1, figsize=(10,15))
 
 out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markeredgecolor = 'none' )
@@ -2703,17 +2169,11 @@ for i in range(9):
     if (i%3) == 0 :
         axes[i//3, i %3].set_ylabel('Soil moisture change (log)')
 
-#axes[1, 2].set_xlabel('Forest structural complexity')
-#axes[1,2].set_xticks(np.arange(3,10),labels = np.arange(3,10))
-#axes[2,2].axis('off')
 plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20251212/smrz_change_csc_biome_kndvi_log.png', dpi = 600)
 
-# %% [markdown]
-# #### 4.2.3 et change
 
-# %%
 etchange_kndvi_use = df_all_kndvi.copy()
 etchange_kndvi_use.head()
 
@@ -2887,9 +2347,6 @@ for i in range(9):
     if (i%3) == 0 :
         axes[i//3, i %3].set_ylabel('Tr change')
 
-#axes[1, 2].set_xlabel('Forest structural complexity')
-#axes[1,2].set_xticks(np.arange(3,10),labels = np.arange(3,10))
-#axes[2,2].axis('off')
 plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20251212/et_change_csc_biome_kndvi_use.png', dpi = 600)
@@ -3175,13 +2632,6 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20251212/lst_zs_csc_biome_kndvi_ne.png', dpi = 600)
 
-# %% [markdown]
-# ## 4 kndvi 2000以后
-
-# %% [markdown]
-# ### 4.1 先做相关
-# #### 4.1.1 因子间的简单相关
-# - 排除那些 sm et 和 lst变化
 
 # %%
 df_all_kndvi_after2000.columns
@@ -3254,11 +2704,6 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/cor_resistance_kndvi_csc_kndvi_events_after2000.png', dpi = 600)
-
-# %% [markdown]
-# ##### 画之前用的 抵抗力指标的简单相关
-
 # %%
 df_all_kndvi_after2000.columns
 
@@ -3329,9 +2774,6 @@ plt.tight_layout()
 
 plt.savefig('result_figure/figure_use/cor_resistance_kndvi_after2000_events.png', dpi = 600)
 
-# %% [markdown]
-# ##### 画之后用的 Ydrou/Ymean 抵抗力指标的简单相关
-
 # %%
 df_all_kndvi_after2000.columns
 drou_resis_cor_kndvi2_after2000 = df_all_kndvi_after2000.drop(['lon', 'lat', 'year', 'kndvi', 'biome','sm_change', 'et_change','lst_zs',],
@@ -3400,8 +2842,6 @@ plt.tight_layout()
 
 plt.savefig('result_figure/figure_use_20260105/cor_resistance_kndvi2_after2000_events.png', dpi = 600)
 
-# %% [markdown]
-# ##### 画之后用的 Ydrou/Ymean log 抵抗力指标的简单相关
 
 # %%
 df_all_kndvi.columns
@@ -3473,8 +2913,6 @@ plt.tight_layout()
 
 plt.savefig('result_figure/figure_use_20260105/cor_resistance_kndvi2_after2000_events_log.png', dpi = 600)
 
-# %% [markdown]
-# #### 4.1.2 偏相关
 
 # %%
 grouped_resistance_kndvi_by_bi_after2000 = df_all_kndvi_after2000.groupby("biome")
@@ -3525,8 +2963,6 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi_csc_events_after2000.png', dpi = 600)
-
 
 # %%
 kndvi2_pcor_result_after2000 = biome_partial_cor(df_all_kndvi_after2000, 'fsc', 'plant_richness', 'annual_prec', 'kndvi2')
@@ -3570,8 +3006,6 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi2_csc_events_after2000.png', dpi = 600)
-
 # %%
 kndvi2_log_pcor_result_after2000 = biome_partial_cor(df_all_kndvi_after2000, 'fsc', 'plant_richness', 'annual_prec', 'resis_log2')
 kndvi2_log_pcor_result_after2000
@@ -3613,11 +3047,6 @@ cb.set_label(label='Correlation Coefficients')
 cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
-
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi2_csc_events_after2000.png', dpi = 600)
-
-# %% [markdown]
-# #### 4.1.3 FSC 和 LAI的偏相关
 
 # %%
 df_all_kndvi_after2000.columns
@@ -3664,7 +3093,6 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi_csc_lai_events_after2000.png', dpi = 600)
 
 # %%
 kndvi2_lai_pcor_result_after2000 = biome_partial_cor(df_all_kndvi_after2000, 'fsc', 'lai_gs', 'annual_prec', 'kndvi2')
@@ -3708,7 +3136,6 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi_csc_lai_events_after2000.png', dpi = 600)
 
 # %%
 kndvi2_log_lai_pcor_result_after2000 = biome_partial_cor(df_all_kndvi_after2000, 'fsc', 'lai_gs', 'annual_prec', 'resis_log2')
@@ -3752,11 +3179,6 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use/pcor_biome_resistance_cor_pcor_kndvi_csc_lai_events_after2000.png', dpi = 600)
-
-# %% [markdown]
-# ### 4.2 fsc对 抵抗力  et sm lst的关系画图
-
 # %%
 print(df_all_kndvi_after2000.fsc.max(),df_all_kndvi_after2000.fsc.min())
 
@@ -3770,10 +3192,7 @@ df_all_kndvi_after2000.plant_richness.max()
 # %%
 df_all_kndvi_after2000['rich_bins'] = pd.cut(df_all_kndvi_after2000.plant_richness, bins = [0,1.5,2.5,3.5,4.5,5.5], labels= [1,2,3,4,5])
 
-# %% [markdown]
-# #### 4.2.1 抵抗力 
 
-# %%
 fig, axes = plt.subplots(3,1, figsize=(10,15))
 
 out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markeredgecolor = 'none' )
@@ -4048,10 +3467,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20260105/richness_resistance_biome_fsc_after2000.png', dpi = 600)
 
-# %% [markdown]
-# ##### kndvi2 画图
 
-# %%
 fig, axes = plt.subplots(3,1, figsize=(10,15))
 
 out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markeredgecolor = 'none' )
@@ -4274,10 +3690,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20260105/richness_resistance_biome_kndvi2_after2000.png', dpi = 600)
 
-# %% [markdown]
-# ##### kndvi2 log 画图
 
-# %%
 fig, axes = plt.subplots(3,1, figsize=(10,15))
 
 out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markeredgecolor = 'none' )
@@ -4499,10 +3912,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20260105/richness_resistance_biome_kndvi2_log_after2000.png', dpi = 600)
 
-# %% [markdown]
-# #### 4.2.2 sm change
 
-# %%
 print(df_sm_kndvi_after2000.fsc.min(), df_sm_kndvi_after2000.fsc.max() )
 
 # %%
@@ -4580,10 +3990,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20251212/smrz_change_csc_biome_kndvi_log_after2000.png', dpi = 600)
 
-# %% [markdown]
-# #### 4.2.3 et change
 
-# %%
 etchange_kndvi_use_after2000 = df_all_kndvi_after2000.copy()
 etchange_kndvi_use_after2000.head()
 
@@ -4807,8 +4214,6 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20251212/et_change_csc_biome_kndvi_ne_after2000.png', dpi = 600)
 
-# %% [markdown]
-# #### 4.2.4 lst change
 
 # %%
 lstzs_kndvi_use_after2000 = df_all_kndvi_after2000.copy()
@@ -5046,16 +4451,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20251212/lst_zs_csc_biome_kndvi_ne_after2000.png', dpi = 600)
 
-# %% [markdown]
-# ## 5 sif
 
-# %% [markdown]
-# ### 5.1 先做相关
-
-# %% [markdown]
-# #### 5.1.1 因子间的简单相关
-
-# %%
 drou_resis_cor_sif = df_all_sif.drop(['lon', 'lat', 'year', 'sif', 'biome','sm_change', 'et_change','lst_zs',],
                                          axis=1)[['resis_log','resis_log2','sif2','spei','fsc','plant_richness','lai_gs','annual_temp','annual_prec',
                                                   'ai_index','drought_count','drought_duration','drought_severity',
@@ -5124,8 +4520,6 @@ plt.tight_layout()
 
 #plt.savefig('result_figure/figure_use_20251212/cor_resistance_sif_csc_sif_events.png', dpi = 600)
 
-# %% [markdown]
-# ##### sif2 画图
 
 # %%
 df_all_sif.columns
@@ -5197,8 +4591,7 @@ plt.tight_layout()
 
 plt.savefig('result_figure/figure_use_20260105/cor_resistance_sif2_events.png', dpi = 600)
 
-# %% [markdown]
-# ##### sif2 log画图
+
 
 # %%
 df_all_sif.columns
@@ -5270,209 +4663,14 @@ plt.tight_layout()
 
 plt.savefig('result_figure/figure_use_20260105/cor_resistance_sif2_log_events.png', dpi = 600)
 
-# %% [markdown]
-# #### 5.1.2 偏相关
 
-# %%
 grouped_resistance_sif_by_bi = df_all_sif.groupby("biome")
 
 # %%
 df_all_sif.biome.value_counts().index[:9]
 
-# %%
 df_all_sif.columns
 
-# %%
-'''
-bi_cor_fsc= {}
-bi_cor_rich = {}
-for bi_n in df_all_sif.biome.value_counts().index[:9]:
-    print(bi_n)
-    bi_group_df = grouped_resistance_sif_by_bi.get_group(bi_n)
-    bi_cor_fsc[bi_n] = {'r':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['fsc'])[0],
-                        'p-val':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['fsc'])[1]}
-    bi_cor_rich[bi_n] = {'r':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['plant_richness'])[0],
-                        'p-val':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['plant_richness'])[1]}
-'''
-
-# %%
-#bi_cor_fsc
-
-# %%
-#bi_cor_rich
-
-# %%
-#stats.spearmanr(df_all_sif['resis_log'],df_all_sif['fsc'])
-
-# %%
-#stats.spearmanr(df_all_sif['resis_log'],df_all_sif['plant_richness'])
-
-# %%
-'''
-bi_pd_fsc_cor_df = pd.DataFrame(bi_cor_fsc).T
-bi_pd_fsc_cor_df['var'] = 'fsc'
-bi_pd_fsc_cor_df = bi_pd_fsc_cor_df.sort_index()
-bi_pd_fsc_cor_df
-'''
-
-# %%
-'''
-bi_pd_rich_cor_df = pd.DataFrame(bi_cor_rich).T
-bi_pd_rich_cor_df['var'] = 'rich'
-bi_pd_rich_cor_df = bi_pd_rich_cor_df.sort_index()
-bi_pd_rich_cor_df
-'''
-
-# %%
-'''
-fsc_cor_list = list(bi_pd_fsc_cor_df.r)
-fsc_cor_list.append(0.453)
-rich_cor_list = list(bi_pd_rich_cor_df.r)
-rich_cor_list.append(0.350)
-bi_cor_list = list(bi_pd_rich_cor_df.index)
-bi_cor_list.append(0)
-bi_cor_pd_r = pd.DataFrame({'fsc':fsc_cor_list, 'rich':rich_cor_list, 'biome':bi_cor_list})
-bi_cor_pd_r
-'''
-
-# %%
-'''
-fsc_cor_list = list(bi_pd_fsc_cor_df['p-val'])
-fsc_cor_list.append(0)
-rich_cor_list = list(bi_pd_rich_cor_df['p-val'])
-rich_cor_list.append(0)
-bi_cor_list = list(bi_pd_rich_cor_df.index)
-bi_cor_list.append(0)
-bi_cor_pd_p = pd.DataFrame({'fsc':fsc_cor_list, 'rich':rich_cor_list, 'biome':bi_cor_list})
-bi_cor_pd_p
-'''
-
-# %%
-'''
-bi_pd_fsc_rich_pcor = {}
-bi_pd_fsc_prec_pcor = {}
-bi_pd_rich_fsc_pcor = {}
-bi_pd_rich_prec_pcor = {}
-for bi_n in df_all_sif.biome.value_counts().index[:9]:
-    print(bi_n)
-    bi_group_df = grouped_resistance_sif_by_bi.get_group(bi_n)
-    fsc_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='fsc',covar=['plant_richness'],method='spearman').round(4)
-    fsc_prec_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='fsc',covar=['annual_prec'],method='spearman').round(4)
-    rich_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='plant_richness',covar=['fsc'],method='spearman').round(4)
-    rich_prec_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='plant_richness',covar=['annual_prec'],method='spearman').round(4)
-    bi_pd_fsc_rich_pcor[bi_n] = {'r':fsc_pcor['r'].values[0], 'p-val': fsc_pcor['p-val'].values[0]}
-    bi_pd_rich_fsc_pcor[bi_n] = {'r':rich_pcor['r'].values[0], 'p-val': rich_pcor['p-val'].values[0]}
-    bi_pd_fsc_prec_pcor[bi_n] = {'r':fsc_prec_pcor['r'].values[0], 'p-val': fsc_prec_pcor['p-val'].values[0]}
-    bi_pd_rich_prec_pcor[bi_n] = {'r':rich_prec_pcor['r'].values[0], 'p-val': rich_prec_pcor['p-val'].values[0]}
-'''
-
-# %%
-#bi_pd_fsc_rich_pcor
-
-# %%
-#bi_pd_fsc_prec_pcor
-
-# %%
-#bi_pd_rich_fsc_pcor
-
-# %%
-#bi_pd_rich_prec_pcor
-
-# %%
-#pg.partial_corr(data = df_all_sif,y='resis_log',x='plant_richness',covar=['annual_prec'], method='spearman').round(3)
-
-# %%
-#pg.partial_corr(data = df_all_sif,y='resis_log',x='plant_richness',covar=['fsc'], method='spearman').round(3)
-
-# %%
-#pg.partial_corr(data = df_all_sif,y='resis_log',x='fsc',covar=['annual_prec'], method='spearman').round(3)
-
-# %%
-#pg.partial_corr(data = df_all_sif,y='resis_log',x='fsc',covar=['plant_richness'], method='spearman').round(3)
-
-# %%
-'''
-bi_pd_fsc_rich_pcor_df = pd.DataFrame(bi_pd_fsc_rich_pcor).T
-bi_pd_fsc_rich_pcor_df['var'] = 'fsc_rich'
-bi_pd_fsc_rich_pcor_df = bi_pd_fsc_rich_pcor_df.sort_index()
-bi_pd_fsc_rich_pcor_df
-'''
-
-# %%
-'''
-bi_pd_rich_fsc_pcor_df = pd.DataFrame(bi_pd_rich_fsc_pcor).T
-bi_pd_rich_fsc_pcor_df['var'] = 'rich_fsc'
-bi_pd_rich_fsc_pcor_df = bi_pd_rich_fsc_pcor_df.sort_index()
-bi_pd_rich_fsc_pcor_df
-'''
-
-# %%
-'''
-bi_pd_fsc_prec_pcor_df = pd.DataFrame(bi_pd_fsc_prec_pcor).T
-bi_pd_fsc_prec_pcor_df['var'] = 'fsc_prec'
-bi_pd_fsc_prec_pcor_df = bi_pd_fsc_prec_pcor_df.sort_index()
-bi_pd_fsc_prec_pcor_df
-'''
-
-# %%
-'''
-bi_pd_rich_prec_pcor_df = pd.DataFrame(bi_pd_rich_prec_pcor).T
-bi_pd_rich_prec_pcor_df['var'] = 'rich_prec'
-bi_pd_rich_prec_pcor_df = bi_pd_rich_prec_pcor_df.sort_index()
-bi_pd_rich_prec_pcor_df
-'''
-
-# %%
-'''
-fsc_rich_list = list(bi_pd_fsc_rich_pcor_df.r)
-fsc_rich_list.append(0.444)
-fsc_prec_list = list(bi_pd_fsc_prec_pcor_df.r)
-fsc_prec_list.append(0.292)
-rich_fsc_list = list(bi_pd_rich_fsc_pcor_df.r)
-rich_fsc_list.append(0.337)
-rich_prec_list = list(bi_pd_rich_prec_pcor_df.r)
-rich_prec_list.append(-0.11)
-bi_pcor_list = list(bi_pd_rich_prec_pcor_df.index)
-bi_pcor_list.append(0)
-bi_pcor_df = pd.DataFrame({'fsc_prec':fsc_prec_list, 'fsc_rich':fsc_rich_list,'rich_prec':rich_prec_list, 'rich_fsc':rich_fsc_list, 'biome':bi_pcor_list})
-bi_pcor_df
-'''
-
-# %%
-'''
-fsc_rich_list = list(bi_pd_fsc_rich_pcor_df['p-val'])
-fsc_rich_list.append(0)
-fsc_prec_list = list(bi_pd_fsc_prec_pcor_df['p-val'])
-fsc_prec_list.append(0)
-rich_fsc_list = list(bi_pd_rich_fsc_pcor_df['p-val'])
-rich_fsc_list.append(0)
-rich_prec_list = list(bi_pd_rich_prec_pcor_df['p-val'])
-rich_prec_list.append(0)
-bi_pcor_list = list(bi_pd_rich_prec_pcor_df.index)
-bi_pcor_list.append(0)
-bi_pval_df = pd.DataFrame({'fsc_prec':fsc_prec_list, 'fsc_rich':fsc_rich_list,'rich_prec':rich_prec_list, 'rich_fsc':rich_fsc_list, 'biome':bi_pcor_list})
-bi_pval_df
-'''
-
-# %%
-'''
-bi_pd_pcor_all = pd.merge(bi_cor_pd_r,bi_pcor_df,on='biome',how='left')
-bi_pd_pcor_all
-'''
-
-# %%
-'''
-bi_pd_pval_all = pd.merge(bi_cor_pd_p,bi_pval_df,on='biome',how='left')
-bi_pd_pval_all
-'''
-
-# %%
-'''
-bi_pd_pcor_all.to_csv('E:/python_output/fsc_drought/bi_pd_pcor_all_sif_mid_event.csv', index = False)
-bi_pd_pval_all.to_csv('E:/python_output/fsc_drought/bi_pd_pval_all_sif_mid_event.csv', index = False)
-'''
-
-# %%
 sif_pcor_result = biome_partial_cor(df_all_sif, 'fsc', 'plant_richness', 'annual_prec', 'resis_log')
 sif_pcor_result
 
@@ -5602,228 +4800,7 @@ cb.outline.set_linewidth(0.05)
 
 plt.tight_layout()
 
-#plt.savefig('result_figure/figure_use_20251212/pcor_biome_resistance_cor_pcor_sif_csc_events.png', dpi = 600)
 
-# %% [markdown]
-# #### 5.1.3 fsc 和 lai的偏相关
-
-# %%
-'''
-bi_cor_fsc= {}
-bi_cor_lai = {}
-for bi_n in df_all_sif.biome.value_counts().index[:9]:
-    print(bi_n)
-    bi_group_df = grouped_resistance_sif_by_bi.get_group(bi_n)
-    bi_cor_fsc[bi_n] = {'r':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['fsc'])[0],
-                        'p-val':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['fsc'])[1]}
-    bi_cor_lai[bi_n] = {'r':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['lai_gs'])[0],
-                        'p-val':stats.spearmanr(bi_group_df['resis_log'],bi_group_df['lai_gs'])[1]}
-bi_cor_fsc
-'''
-
-# %%
-#bi_cor_lai
-
-# %%
-#stats.spearmanr(df_all_sif['resis_log'],df_all_sif['fsc'])
-
-# %%
-#stats.spearmanr(df_all_sif['resis_log'],df_all_sif['lai_gs'])
-
-# %%
-'''
-bi_pd_fsc_cor_df = pd.DataFrame(bi_cor_fsc).T
-bi_pd_fsc_cor_df['var'] = 'fsc'
-bi_pd_fsc_cor_df = bi_pd_fsc_cor_df.sort_index()
-bi_pd_fsc_cor_df
-'''
-
-# %%
-'''
-bi_pd_lai_cor_df = pd.DataFrame(bi_cor_lai).T
-bi_pd_lai_cor_df['var'] = 'lai'
-bi_pd_lai_cor_df = bi_pd_lai_cor_df.sort_index()
-bi_pd_lai_cor_df
-'''
-
-# %%
-'''
-fsc_cor_list = list(bi_pd_fsc_cor_df.r)
-fsc_cor_list.append(0.452)
-lai_cor_list = list(bi_pd_lai_cor_df.r)
-lai_cor_list.append(0.584)
-bi_cor_list = list(bi_pd_lai_cor_df.index)
-bi_cor_list.append(0)
-bi_cor_pd_r = pd.DataFrame({'fsc':fsc_cor_list, 'lai':lai_cor_list, 'biome':bi_cor_list})
-bi_cor_pd_r
-'''
-
-# %%
-'''
-fsc_cor_list = list(bi_pd_fsc_cor_df['p-val'])
-fsc_cor_list.append(0)
-lai_cor_list = list(bi_pd_lai_cor_df['p-val'])
-lai_cor_list.append(0)
-bi_cor_list = list(bi_pd_lai_cor_df.index)
-bi_cor_list.append(0)
-bi_cor_pd_p = pd.DataFrame({'fsc':fsc_cor_list, 'lai':lai_cor_list, 'biome':bi_cor_list})
-bi_cor_pd_p
-'''
-
-# %%
-'''
-bi_pd_fsc_lai_pcor = {}
-bi_pd_fsc_prec_pcor = {}
-bi_pd_lai_fsc_pcor = {}
-bi_pd_lai_prec_pcor = {}
-for bi_n in df_all_sif.biome.value_counts().index[:9]:
-    print(bi_n)
-    bi_group_df = grouped_resistance_sif_by_bi.get_group(bi_n)
-    fsc_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='fsc',covar=['lai_gs'],method='spearman').round(4)
-    fsc_prec_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='fsc',covar=['annual_prec'],method='spearman').round(4)
-    lai_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='lai_gs',covar=['fsc'],method='spearman').round(4)
-    lai_prec_pcor = pg.partial_corr(data = bi_group_df,y='resis_log',x='lai_gs',covar=['annual_prec'],method='spearman').round(4)
-    bi_pd_fsc_lai_pcor[bi_n] = {'r':fsc_pcor['r'].values[0], 'p-val': fsc_pcor['p-val'].values[0]}
-    bi_pd_lai_fsc_pcor[bi_n] = {'r':lai_pcor['r'].values[0], 'p-val': lai_pcor['p-val'].values[0]}
-    bi_pd_fsc_prec_pcor[bi_n] = {'r':fsc_prec_pcor['r'].values[0], 'p-val': fsc_prec_pcor['p-val'].values[0]}
-    bi_pd_lai_prec_pcor[bi_n] = {'r':lai_prec_pcor['r'].values[0], 'p-val': lai_prec_pcor['p-val'].values[0]}
-bi_pd_fsc_lai_pcor
-'''
-
-# %%
-#bi_pd_fsc_prec_pcor
-
-# %%
-#bi_pd_lai_fsc_pcor
-
-# %%
-#bi_pd_lai_prec_pcor
-
-# %%
-#pg.partial_corr(data = df_all_sif,y='resis_log',x='lai_gs',covar=['annual_prec'], method='spearman').round(3)
-
-# %%
-#pg.partial_corr(data = df_all_sif,y='resis_log',x='lai_gs',covar=['fsc'], method='spearman').round(3)
-
-# %%
-#pg.partial_corr(data = df_all_sif,y='resis_log',x='fsc',covar=['annual_prec'], method='spearman').round(3)
-
-# %%
-#pg.partial_corr(data = df_all_sif,y='resis_log',x='fsc',covar=['lai_gs'], method='spearman').round(3)
-
-# %%
-'''
-bi_pd_fsc_lai_pcor_df = pd.DataFrame(bi_pd_fsc_lai_pcor).T
-bi_pd_fsc_lai_pcor_df['var'] = 'fsc_lai'
-bi_pd_fsc_lai_pcor_df = bi_pd_fsc_lai_pcor_df.sort_index()
-bi_pd_fsc_lai_pcor_df
-'''
-
-# %%
-'''
-bi_pd_lai_fsc_pcor_df = pd.DataFrame(bi_pd_lai_fsc_pcor).T
-bi_pd_lai_fsc_pcor_df['var'] = 'lai_fsc'
-bi_pd_lai_fsc_pcor_df = bi_pd_lai_fsc_pcor_df.sort_index()
-bi_pd_lai_fsc_pcor_df
-'''
-
-# %%
-'''
-bi_pd_fsc_prec_pcor_df = pd.DataFrame(bi_pd_fsc_prec_pcor).T
-bi_pd_fsc_prec_pcor_df['var'] = 'fsc_prec'
-bi_pd_fsc_prec_pcor_df = bi_pd_fsc_prec_pcor_df.sort_index()
-bi_pd_fsc_prec_pcor_df
-'''
-
-# %%
-'''
-bi_pd_lai_prec_pcor_df = pd.DataFrame(bi_pd_lai_prec_pcor).T
-bi_pd_lai_prec_pcor_df['var'] = 'lai_prec'
-bi_pd_lai_prec_pcor_df = bi_pd_lai_prec_pcor_df.sort_index()
-bi_pd_lai_prec_pcor_df
-'''
-
-# %%
-'''
-fsc_lai_list = list(bi_pd_fsc_lai_pcor_df.r)
-fsc_lai_list.append(0.152)
-fsc_prec_list = list(bi_pd_fsc_prec_pcor_df.r)
-fsc_prec_list.append(0.29)
-lai_fsc_list = list(bi_pd_lai_fsc_pcor_df.r)
-lai_fsc_list.append(0.337)
-lai_prec_list = list(bi_pd_lai_prec_pcor_df.r)
-lai_prec_list.append(0.438)
-bi_pcor_list = list(bi_pd_lai_prec_pcor_df.index)
-bi_pcor_list.append(0)
-bi_pcor_df = pd.DataFrame({'fsc_prec':fsc_prec_list, 'fsc_lai':fsc_lai_list,'lai_prec':lai_prec_list, 'lai_fsc':lai_fsc_list, 'biome':bi_pcor_list})
-bi_pcor_df
-'''
-
-# %%
-'''
-fsc_lai_list = list(bi_pd_fsc_lai_pcor_df['p-val'])
-fsc_lai_list.append(0)
-fsc_prec_list = list(bi_pd_fsc_prec_pcor_df['p-val'])
-fsc_prec_list.append(0)
-lai_fsc_list = list(bi_pd_lai_fsc_pcor_df['p-val'])
-lai_fsc_list.append(0)
-lai_prec_list = list(bi_pd_lai_prec_pcor_df['p-val'])
-lai_prec_list.append(0)
-bi_pcor_list = list(bi_pd_lai_prec_pcor_df.index)
-bi_pcor_list.append(0)
-bi_pval_df = pd.DataFrame({'fsc_prec':fsc_prec_list, 'fsc_lai':fsc_lai_list,'lai_prec':lai_prec_list, 'lai_fsc':lai_fsc_list, 'biome':bi_pcor_list})
-bi_pval_df
-'''
-
-# %%
-#bi_pd_pcor_all = pd.merge(bi_cor_pd_r,bi_pcor_df,on='biome',how='left')
-#bi_pd_pcor_all
-
-# %%
-#bi_pd_pval_all = pd.merge(bi_cor_pd_p,bi_pval_df,on='biome',how='left')
-#bi_pd_pval_all
-
-# %%
-'''
-draw_col = ['lai','lai_prec','lai_fsc','fsc','fsc_prec','fsc_lai']
-fig, ax = plt.subplots(figsize=(16,10))
-
-im = ax.imshow(bi_pd_pcor_all[draw_col], vmin=-0.5, vmax=0.5, cmap='PiYG_r', aspect=0.6)
-ax.set_xticks(ticks=np.arange(6))
-ax.set_yticks(ticks=np.arange(10))
-ax.set_xticklabels(['[ ]','PREC','FSC','[ ]','PREC','LAI'])
-ax.set_yticklabels([biome_short_dic[bi_n] for bi_n in bi_pd_pcor_all.biome])
-
-for i in [5,4,3,2,1,0]:
-    for j in range(10):
-        if bi_pd_pval_all[draw_col].iloc[j,i] < 0.001:
-            ax.text(i,j, '***', ha='center', va = 'center')
-        elif bi_pd_pval_all[draw_col].iloc[j,i] < 0.01:
-            ax.text(i,j, '**', ha='center', va = 'center')
-        elif bi_pd_pval_all[draw_col].iloc[j,i] < 0.05:
-            ax.text(i,j, '*', ha='center', va = 'center')
-#for k in range(8):
-#    ax.text(6.5,k, '('+str(round(ai_biome[bi_pd_pcor_all.biome[k]],3))+ ' ' + str(round(ai_bi_std[bi_pd_pcor_all.biome[k]],3)) + ')' , ha='right', va = 'center', color = 'blue')
-    #ax.text(2.5,k, round(ai_ld_std[ld_pd_pcor.ld[k]],2), ha='right', va = 'center', color = 'blue')
-#ax.text(6.5, 8, 'Aridity Index',ha='right', va = 'center', color = 'blue')
-#ax.text(6.5, 7.5, '(Mean    Std)',ha='right', va = 'center', color = 'blue')
-
-ax.text(1, 10.1, 'Tree species lainess',ha='center', va = 'center', color = 'black', size=18)
-ax.text(4, 10.1, 'Forest structural complexity',ha='center', va = 'center', color = 'black',size=18)
-
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.spines['left'].set_visible(False)
-ax.spines['bottom'].set_visible(False)
-
-cb = plt.colorbar(im, shrink=0.7, pad = 0.05)
-cb.set_label(label='Correlation Coefficients')
-cb.outline.set_linewidth(0.05)
-
-plt.tight_layout()
-'''
-
-# %%
 sif_lai_pcor_result = biome_partial_cor(df_all_sif, 'fsc', 'lai_gs', 'annual_prec', 'resis_log')
 sif_lai_pcor_result
 
@@ -5955,10 +4932,7 @@ plt.tight_layout()
 
 #plt.savefig('result_figure/figure_use_20251212/pcor_biome_resistance_cor_pcor_sif_lai_csc_events.png', dpi = 600)
 
-# %% [markdown]
-# ### 5.2 fsc 对抵抗力 et sm lst
 
-# %%
 print(df_all_sif.fsc.max(),df_all_sif.fsc.min())
 
 # %%
@@ -5971,10 +4945,7 @@ df_all_sif.plant_richness.max()
 # %%
 df_all_sif['rich_bins'] = pd.cut(df_all_sif.plant_richness, bins = [0,1.5,2.5,3.5,4.5,5.5], labels= [1,2,3,4,5])
 
-# %% [markdown]
-# #### 5.2.1 抵抗力
 
-# %%
 fig, axes = plt.subplots(3,1, figsize=(10,15))
 
 out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markeredgecolor = 'none' )
@@ -6250,10 +5221,6 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20260105/richness_resistance_biome_fsc_sif_log.png', dpi = 600)
 
-# %% [markdown]
-# ##### sif2 画图
-
-# %%
 fig, axes = plt.subplots(3,1, figsize=(10,15))
 
 out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markeredgecolor = 'none' )
@@ -6475,10 +5442,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20260105/richness_resistance_biome_sif2.png', dpi = 600)
 
-# %% [markdown]
-# ##### sif2 log 画图
 
-# %%
 fig, axes = plt.subplots(3,1, figsize=(10,15))
 
 out_values = dict(markersize = 2, marker='D', markerfacecolor = 'gray', markeredgecolor = 'none' )
@@ -6613,7 +5577,6 @@ fig.subplots_adjust(top=0.95, bottom=0.1, left=0.1)
 
 fig.savefig(r'result_figure/figure_use_20260105/richness_fsc_resistance_sif2_log.png', dpi = 600)
 
-# %%
 fig, axes = plt.subplots(3,3, figsize=(14,10))
 
 y_list = [6.2,6.2,6.2,6.2,6.2,6.2,6.2,6.2,6]
@@ -6701,10 +5664,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20260105/richness_resistance_biome_sif2_log.png', dpi = 600)
 
-# %% [markdown]
-# #### 5.2.2 sm change
 
-# %%
 df_sm_sif['fsc_bins'] = pd.cut(df_sm_sif.fsc, bins = [0,9.25,9.75,10.25,10.75,11.25,13], labels= [9,9.5,10,10.5,11,11.5])
 
 # %%
@@ -6783,10 +5743,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20251212/smrz_change_csc_biome_sif_log.png', dpi = 600)
 
-# %% [markdown]
-# #### 5.2.3 et change
 
-# %%
 etchange_sif_use = df_all_sif.copy()
 etchange_sif_use.head()
 
@@ -6920,9 +5877,6 @@ for i in range(9):
     if (i%3) == 0 :
         axes[i//3, i %3].set_ylabel('Tr change')
 
-#axes[1, 2].set_xlabel('Forest structural complexity')
-#axes[1,2].set_xticks(np.arange(3,10),labels = np.arange(3,10))
-#axes[2,2].axis('off')
 plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20251212/et_change_csc_biome_sif_po.png', dpi = 600)
@@ -7009,10 +5963,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20251212/et_change_csc_biome_sif_ne.png', dpi = 600)
 
-# %% [markdown]
-# #### 5.2.4 lst change
 
-# %%
 lstzs_sif_use = df_all_sif.copy()
 lstzs_sif_use.head()
 
@@ -7244,13 +6195,7 @@ plt.tight_layout()
 
 fig.savefig('result_figure/figure_use_20251212/lst_zs_csc_biome_sif_ne.png', dpi = 600)
 
-# %% [markdown]
-# ## 6 其他一些图
 
-# %% [markdown]
-# ### 6.1 hexplot
-
-# %%
 ##  kndvi 和 sif
 fig, axes = plt.subplots(2,3, figsize=(12,8))
 
@@ -7325,8 +6270,7 @@ plt.subplots_adjust(top=0.93, bottom=0.1, right=0.88, left=0.06, wspace=0.27)
 
 plt.savefig('result_figure/figure_use_20260105/resistance_richness_fsc_prec_kndvi&sif_event.png', dpi = 600)
 
-# %%
-##  kndvi after2000 和 sif
+
 fig, axes = plt.subplots(2,3, figsize=(12,8))
 
 axes[0,0].hexbin(df_all_kndvi_after2000.plant_richness, df_all_kndvi_after2000.fsc, 
@@ -7401,8 +6345,6 @@ plt.subplots_adjust(top=0.93, bottom=0.1, right=0.88, left=0.06, wspace=0.27)
 plt.savefig('result_figure/figure_use_20260105/resistance_richness_fsc_prec_kndvi&sif_event_after2000.png', dpi = 600)
 
 
-# %%
-##  kndvi2 和 sif2
 fig, axes = plt.subplots(2,3, figsize=(12,8))
 
 axes[0,0].hexbin(df_all_kndvi.plant_richness, df_all_kndvi.fsc, 
@@ -7477,8 +6419,7 @@ plt.subplots_adjust(top=0.93, bottom=0.1, right=0.88, left=0.06, wspace=0.27)
 
 plt.savefig('result_figure/figure_use_20260105/resistance_richness_fsc_prec_kndvi2&sif2_event.png', dpi = 600)
 
-# %%
-##  kndvi2 after2000 和 sif2
+
 fig, axes = plt.subplots(2,3, figsize=(12,8))
 
 axes[0,0].hexbin(df_all_kndvi_after2000.plant_richness, df_all_kndvi_after2000.fsc, 
@@ -7552,8 +6493,6 @@ plt.subplots_adjust(top=0.93, bottom=0.1, right=0.88, left=0.06, wspace=0.27)
 
 plt.savefig('result_figure/figure_use_20260105/resistance_richness_fsc_prec_kndvi2&sif2_event_after2000.png', dpi = 600)
 
-# %%
-##  kndvi2  和 sif2  logit
 fig, axes = plt.subplots(2,3, figsize=(12,8))
 
 axes[0,0].hexbin(df_all_kndvi.plant_richness, df_all_kndvi.fsc, 
@@ -7627,8 +6566,6 @@ plt.subplots_adjust(top=0.93, bottom=0.1, right=0.88, left=0.06, wspace=0.27)
 
 plt.savefig('result_figure/figure_use_20260105/resistance_richness_fsc_prec_kndvi2&sif2_log_event.png', dpi = 600)
 
-# %%
-##  kndvi2 after2000 和 sif2  logit
 fig, axes = plt.subplots(2,3, figsize=(12,8))
 
 axes[0,0].hexbin(df_all_kndvi_after2000.plant_richness, df_all_kndvi_after2000.fsc, 
@@ -7702,21 +6639,7 @@ plt.subplots_adjust(top=0.93, bottom=0.1, right=0.88, left=0.06, wspace=0.27)
 
 plt.savefig('result_figure/figure_use_20260105/resistance_richness_fsc_prec_kndvi2&sif2_log_event_after2000.png', dpi = 600)
 
-# %% [markdown]
-# ### 6.2 偏相关
 
-# %%
-'''
-bi_pd_pcor_all_kndvi = pd.read_csv('E:/python_output/fsc_drought/bi_pd_pcor_all_kndvi_mid_event.csv')
-bi_pd_pval_all_kndvi = pd.read_csv('E:/python_output/fsc_drought/bi_pd_pval_all_kndvi_mid_event.csv')
-bi_pd_pcor_all_sif = pd.read_csv('E:/python_output/fsc_drought/bi_pd_pcor_all_sif_mid_event.csv')
-bi_pd_pval_all_sif = pd.read_csv('E:/python_output/fsc_drought/bi_pd_pval_all_sif_mid_event.csv')
-'''
-
-# %% [markdown]
-# #### 之前的指标
-
-# %%
 draw_col = ['plant_richness','plant_richness_annual_prec','plant_richness_fsc','fsc','fsc_annual_prec','fsc_plant_richness']
 fig, axes = plt.subplots(1, 2, figsize=(16,7))
 
@@ -7789,8 +6712,6 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 
 plt.savefig('result_figure/figure_use_20260105/pcor_richness_fsc_prec_kndvi&sif_event.png', dpi = 600)
 
-# %%
-## kndvi after2000
 draw_col = ['plant_richness','plant_richness_annual_prec','plant_richness_fsc','fsc','fsc_annual_prec','fsc_plant_richness']
 fig, axes = plt.subplots(1, 2, figsize=(16,7))
 
@@ -8009,20 +6930,17 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 
 plt.savefig('result_figure/figure_use_20260105/pcor_richness_fsc_prec_kndvi&sif_lai_event_after2000.png', dpi = 600)
 
-# %%
-## 加一列 fsc-lai的偏相关
+
 kndvi_pcor_result_addlai = {}
 kndvi_pcor_result_addlai['pcor'] = pd.merge(kndvi_pcor_result['pcor'],kndvi_lai_pcor_result['pcor'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi_pcor_result_addlai['p-val'] = pd.merge(kndvi_pcor_result['p-val'],kndvi_lai_pcor_result['p-val'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi_pcor_result_addlai
 
-# %%
 sif_pcor_result_addlai = {}
 sif_pcor_result_addlai['pcor'] = pd.merge(sif_pcor_result['pcor'],sif_lai_pcor_result['pcor'][['biome','fsc_lai_gs']],on = 'biome')
 sif_pcor_result_addlai['p-val'] = pd.merge(sif_pcor_result['p-val'],sif_lai_pcor_result['p-val'][['biome','fsc_lai_gs']],on = 'biome')
 sif_pcor_result_addlai
 
-# %%
 draw_col = ['plant_richness','plant_richness_annual_prec','plant_richness_fsc','fsc','fsc_annual_prec','fsc_plant_richness','fsc_lai_gs']
 fig, axes = plt.subplots(1, 2, figsize=(16,7))
 
@@ -8095,14 +7013,12 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 
 plt.savefig('result_figure/figure_use_20260105/pcor_richness_fsc_prec_kndvi&sif_event_addlai.png', dpi = 600)
 
-# %%
-## 加一列 fsc-lai的偏相关
+
 kndvi_pcor_result_after2000_addlai = {}
 kndvi_pcor_result_after2000_addlai['pcor'] = pd.merge(kndvi_pcor_result_after2000['pcor'],kndvi_lai_pcor_result_after2000['pcor'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi_pcor_result_after2000_addlai['p-val'] = pd.merge(kndvi_pcor_result_after2000['p-val'],kndvi_lai_pcor_result_after2000['p-val'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi_pcor_result_after2000_addlai
 
-# %%
 draw_col = ['plant_richness','plant_richness_annual_prec','plant_richness_fsc','fsc','fsc_annual_prec','fsc_plant_richness','fsc_lai_gs']
 fig, axes = plt.subplots(1, 2, figsize=(16,7))
 
@@ -8134,7 +7050,6 @@ axes[0].spines['top'].set_visible(False)
 axes[0].spines['left'].set_visible(False)
 axes[0].spines['bottom'].set_visible(False)
 
-# sif
 axes[1].imshow(sif_pcor_result_addlai['pcor'][draw_col], vmin=-0.5, vmax=0.5, cmap='PiYG_r', aspect=0.75)
 axes[1].set_xticks(ticks=np.arange(7))
 axes[1].set_yticks(ticks=np.arange(10))
@@ -8175,10 +7090,7 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 
 plt.savefig('result_figure/figure_use_20260105/pcor_richness_fsc_prec_kndvi&sif_event_after2000_addlai.png', dpi = 600)
 
-# %% [markdown]
-# #### 用Ydrou/Ymean
 
-# %%
 draw_col = ['plant_richness','plant_richness_annual_prec','plant_richness_fsc','fsc','fsc_annual_prec','fsc_plant_richness']
 fig, axes = plt.subplots(1, 2, figsize=(16,7))
 
@@ -8210,7 +7122,6 @@ axes[0].spines['top'].set_visible(False)
 axes[0].spines['left'].set_visible(False)
 axes[0].spines['bottom'].set_visible(False)
 
-# sif
 axes[1].imshow(sif2_pcor_result['pcor'][draw_col], vmin=-0.5, vmax=0.5, cmap='PiYG_r', aspect=0.6)
 axes[1].set_xticks(ticks=np.arange(6))
 axes[1].set_yticks(ticks=np.arange(10))
@@ -8283,7 +7194,6 @@ axes[0].spines['top'].set_visible(False)
 axes[0].spines['left'].set_visible(False)
 axes[0].spines['bottom'].set_visible(False)
 
-# sif
 axes[1].imshow(sif2_pcor_result['pcor'][draw_col], vmin=-0.5, vmax=0.5, cmap='PiYG_r', aspect=0.6)
 axes[1].set_xticks(ticks=np.arange(6))
 axes[1].set_yticks(ticks=np.arange(10))
@@ -8470,20 +7380,17 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 
 plt.savefig('result_figure/figure_use_20260105/pcor_richness_fsc_prec_kndvi2&sif2_lai_event_after2000.png', dpi = 600)
 
-# %%
-## 加一列 fsc-lai的偏相关
+
 kndvi2_pcor_result_addlai = {}
 kndvi2_pcor_result_addlai['pcor'] = pd.merge(kndvi2_pcor_result['pcor'],kndvi2_lai_pcor_result['pcor'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi2_pcor_result_addlai['p-val'] = pd.merge(kndvi2_pcor_result['p-val'],kndvi2_lai_pcor_result['p-val'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi2_pcor_result_addlai
 
-# %%
 sif2_pcor_result_addlai = {}
 sif2_pcor_result_addlai['pcor'] = pd.merge(sif2_pcor_result['pcor'],sif2_lai_pcor_result['pcor'][['biome','fsc_lai_gs']],on = 'biome')
 sif2_pcor_result_addlai['p-val'] = pd.merge(sif2_pcor_result['p-val'],sif2_lai_pcor_result['p-val'][['biome','fsc_lai_gs']],on = 'biome')
 sif2_pcor_result_addlai
 
-# %%
 draw_col = ['plant_richness','plant_richness_annual_prec','plant_richness_fsc','fsc','fsc_annual_prec','fsc_plant_richness','fsc_lai_gs']
 fig, axes = plt.subplots(1, 2, figsize=(16,7))
 
@@ -8556,14 +7463,11 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 
 plt.savefig('result_figure/figure_use_20260105/pcor_richness_fsc_prec_kndvi2&sif2_event_addlai.png', dpi = 600)
 
-# %%
-## 加一列 fsc-lai的偏相关
 kndvi2_pcor_result_after2000_addlai = {}
 kndvi2_pcor_result_after2000_addlai['pcor'] = pd.merge(kndvi2_pcor_result_after2000['pcor'],kndvi2_lai_pcor_result_after2000['pcor'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi2_pcor_result_after2000_addlai['p-val'] = pd.merge(kndvi2_pcor_result_after2000['p-val'],kndvi2_lai_pcor_result_after2000['p-val'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi2_pcor_result_after2000_addlai
 
-# %%
 draw_col = ['plant_richness','plant_richness_annual_prec','plant_richness_fsc','fsc','fsc_annual_prec','fsc_plant_richness','fsc_lai_gs']
 fig, axes = plt.subplots(1, 2, figsize=(16,7))
 
@@ -8636,10 +7540,7 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 
 plt.savefig('result_figure/figure_use_20260105/pcor_richness_fsc_prec_kndvi2&sif2_event_after2000_addlai.png', dpi = 600)
 
-# %% [markdown]
-# #### Ydrou/Ymean log
 
-# %%
 draw_col = ['plant_richness','plant_richness_annual_prec','plant_richness_fsc','fsc','fsc_annual_prec','fsc_plant_richness']
 fig, axes = plt.subplots(1, 2, figsize=(16,7))
 
@@ -8671,7 +7572,6 @@ axes[0].spines['top'].set_visible(False)
 axes[0].spines['left'].set_visible(False)
 axes[0].spines['bottom'].set_visible(False)
 
-# sif
 axes[1].imshow(sif2_log_pcor_result['pcor'][draw_col], vmin=-0.5, vmax=0.5, cmap='PiYG_r', aspect=0.6)
 axes[1].set_xticks(ticks=np.arange(6))
 axes[1].set_yticks(ticks=np.arange(10))
@@ -8931,14 +7831,11 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 
 plt.savefig('result_figure/figure_use_20260105/pcor_richness_fsc_prec_kndvi2&sif2_log_lai_event_after2000.png', dpi = 600)
 
-# %%
-## 加一列 fsc-lai的偏相关
 kndvi2_log_pcor_result_addlai = {}
 kndvi2_log_pcor_result_addlai['pcor'] = pd.merge(kndvi2_log_pcor_result['pcor'],kndvi2_log_lai_pcor_result['pcor'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi2_log_pcor_result_addlai['p-val'] = pd.merge(kndvi2_log_pcor_result['p-val'],kndvi2_log_lai_pcor_result['p-val'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi2_log_pcor_result_addlai
 
-# %%
 sif2_log_pcor_result_addlai = {}
 sif2_log_pcor_result_addlai['pcor'] = pd.merge(sif2_log_pcor_result['pcor'],sif2_log_lai_pcor_result['pcor'][['biome','fsc_lai_gs']],on = 'biome')
 sif2_log_pcor_result_addlai['p-val'] = pd.merge(sif2_log_pcor_result['p-val'],sif2_log_lai_pcor_result['p-val'][['biome','fsc_lai_gs']],on = 'biome')
@@ -9017,14 +7914,11 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 
 plt.savefig('result_figure/figure_use_20260105/pcor_richness_fsc_prec_kndvi2&sif2_log_event_addlai.png', dpi = 600)
 
-# %%
-## 加一列 fsc-lai的偏相关
 kndvi2_log_pcor_result_after2000_addlai = {}
 kndvi2_log_pcor_result_after2000_addlai['pcor'] = pd.merge(kndvi2_log_pcor_result_after2000['pcor'],kndvi2_log_lai_pcor_result_after2000['pcor'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi2_log_pcor_result_after2000_addlai['p-val'] = pd.merge(kndvi2_log_pcor_result_after2000['p-val'],kndvi2_log_lai_pcor_result_after2000['p-val'][['biome','fsc_lai_gs']],on = 'biome')
 kndvi2_log_pcor_result_after2000_addlai
 
-# %%
 draw_col = ['plant_richness','plant_richness_annual_prec','plant_richness_fsc','fsc','fsc_annual_prec','fsc_plant_richness','fsc_lai_gs']
 fig, axes = plt.subplots(1, 2, figsize=(16,7))
 
@@ -9097,14 +7991,6 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 
 plt.savefig('result_figure/figure_use_20260105/pcor_richness_fsc_prec_kndvi2&sif2_log_event_after2000_addlai.png', dpi = 600)
 
-# %% [markdown]
-# ## change log
-# 1. 2025.11.21  用每一次事件 画了 fsc对 抵抗力  sm et lst的影响
-# 2. 2025.12.10  加上一个 fsc 和 lai的 偏相关
-# 3. 2025.12.12  加上了lai  加上了只考虑2000年以后的kndvi的结果
-# 4. 2025.01.08  用另一个指标 Ydrou/Ymean 做了一遍
-
-# %%
 
 
 
