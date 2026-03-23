@@ -1,7 +1,4 @@
-# %% [markdown]
-# # 计算气温 土壤温度的差值  评估微气候效应
 
-# %%
 import xarray as xr 
 import matplotlib.pyplot as plt 
 import numpy as np 
@@ -10,15 +7,12 @@ import rioxarray
 import glob
 import pandas as pd
 
-# %% [markdown]
-# ## 1 读取数据
 
-# %%
-soil_temp_path = glob.glob(r'D:/data/soil_temp/*0_5cm*tif')
+soil_temp_path = glob.glob(r'./data/soil_temp/*0_5cm*tif')
 soil_temp_path
 
 # %%
-air_temp_path = glob.glob(r'D:/data/chelsa/CHELSA_*.tif')
+air_temp_path = glob.glob(r'./data/chelsa/CHELSA_*.tif')
 air_temp_path
 
 # %%
@@ -26,14 +20,13 @@ with xr.open_dataset(r'../result_data/landcover_005_use.nc') as data:
     ld = data['modis_landcover']
 ld
 
-# %%
 ld.plot()
 
 # %%
 soil_air_temp_all = []
 for i in range(1,13):
-    print(r'D:/data/soil_temp/soilT_{}_0_5cm.tif'.format(i))
-    with rioxarray.open_rasterio(r'D:/data/soil_temp/soilT_{}_0_5cm.tif'.format(i)) as data:
+    print(r'./data/soil_temp/soilT_{}_0_5cm.tif'.format(i))
+    with rioxarray.open_rasterio(r'./data/soil_temp/soilT_{}_0_5cm.tif'.format(i)) as data:
         soil_temp =  data.where(data > -5000).coarsen(x=6, y =6, boundary='pad', side='right').mean()
         soil_temp =  soil_temp.rename({'x':'lon','y':'lat'})
         soil_temp = soil_temp.interp_like(ld, method='nearest')
@@ -64,10 +57,7 @@ soil_air_temp_all
 # %%
 soil_air_temp_all[0].plot()
 
-# %% [markdown]
-# ## 2 分半球后  计算年均值
 
-# %%
 soil_air_temp_nh = soil_air_temp_all.sel(lat = slice(23.5,90), month = slice(5,9)).mean(dim='month')
 soil_air_temp_sh = soil_air_temp_all.sel(lat = slice(-90,-23.5), month = soil_air_temp_all.month.isin([11,12,1,2,3])).mean(dim='month')
 soil_air_temp_tr = soil_air_temp_all.sel(lat = slice(-23.5,23.5)).mean(dim = 'month')
@@ -92,13 +82,6 @@ soil_air_temp.plot()
 soil_air_temp.name = 'temp_offset'
 
 # %%
-soil_air_temp.to_netcdf(r'E:/python_output/fsc_drought/temp_offset_005.nc')
-
-# %% [markdown]
-# ## change log
-# 1. 2025.11.14  重新计算了气温土壤温度差
-
-# %% [markdown]
-# 
+soil_air_temp.to_netcdf(r'./python_output/fsc_drought/temp_offset_005.nc')
 
 
