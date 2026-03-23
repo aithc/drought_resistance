@@ -1,13 +1,3 @@
-# %% [markdown]
-# ## 干旱抵抗力 新的结果画图
-# 
-# 所有图的范围都要改到csc的范围
-# 
-# 加上机器学习的结果
-# 
-# 抵抗力要画所有数据计算的结果  kndvi 和 sif放在正文  ndvi和vod放在附件
-
-# %%
 import xarray as xr
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,16 +8,13 @@ import matplotlib.ticker as mticker
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import seaborn  as sns
 
-# %%
+
 my_projn = ccrs.EqualEarth(central_longitude=0)
-# 设置字体格式
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 plt.rcParams['axes.unicode_minus'] = False
 plt.rcParams['font.size'] = 11
 plt.rcParams['font.weight'] = 'bold'
 
-# %% [markdown]
-# ### 定义好的 画图函数  cch
 
 # %%
 def maps(grid, my_projn, var, vmin, vmax, cmap_use, cb_label, cb_or, cb_extend, cb_shrink, cb_pad):
@@ -49,9 +36,6 @@ def maps(grid, my_projn, var, vmin, vmax, cmap_use, cb_label, cb_or, cb_extend, 
     return map_ax, im
 
 def degree_formatter(x, pos):
-    """
-    自定义度数格式化函数，将纬度数值转换为度数表示，如90°S。
-    """
     if x > 0:
         return f"{int(x)}°N"
     elif x < 0:
@@ -59,7 +43,6 @@ def degree_formatter(x, pos):
     else:
         return f"{abs(int(x))}°"
 
-# 定义纬向平均绘图函数
 def lats(var, grid, colors, ymin, ymax, xmin, xmax,labels, x_ticks):
     plant_lat = var.mean('lon')
     plant_lat_std = var.std('lon')
@@ -81,56 +64,35 @@ def lats(var, grid, colors, ymin, ymax, xmin, xmax,labels, x_ticks):
     return lat_mean
 
 def small_map(fig, extent, var, bins_use, c1, x_ticks, y_ticks = [0,3000,6000]):
-    """
-        fig:画布
-        var：变量
-        hist_ax：子图
-        xmin，xmax: x轴的最大值最小值
-        bw：柱状图的宽度
-        ymin，ymax：y轴的最大最小值
-        yloc：y轴的坐标间隔
-    
-    """
-    # 在底图中添加小图
+
     hist_ax = fig.add_axes(extent)
-        # 绘制直方图
+
     hist_ax.hist(var.values.flatten(), bins = bins_use, color =c1, alpha =0.5)
-    # 设置x/y范围，刻度间隔，以及科学技术法
+
     #hist_ax.set_xlim(xmin,xmax)
     #hist_ax.set_ylim(ymin,ymax)
     #hist_ax.xaxis.set_major_locator(MultipleLocator(1))
     # hist_ax.xaxis.set_minor_locator(MultipleLocator(0.5))
-    # 科学计数法
     #y_formatter = ScalarFormatter(useMathText=True)
-    #y_formatter.set_powerlimits((-2, 2))  # 可选：设置指数的显示范围
+    #y_formatter.set_powerlimits((-2, 2)) 
     #hist_ax.yaxis.set_major_formatter(y_formatter)
     #hist_ax.yaxis.set_minor_locator(MultipleLocator(yloc))
     hist_ax.set_xticks(x_ticks)
     hist_ax.set_yticks(y_ticks)
-    # 将横纵轴的颜色调淡（轴，轴刻度和刻度标签）
+
     hist_ax.tick_params(axis='both', which='both', color='gray', labelsize=9,labelcolor='gray')
     hist_ax.spines['bottom'].set_color('gray')
     hist_ax.spines['left'].set_color('gray')
-    # 不显示上部和右部的框线
     hist_ax.spines['top'].set_color('none')
     hist_ax.spines['right'].set_color('none')
     hist_ax.set_facecolor('none')
 
     hist_ax.yaxis.set_tick_params(labelsize=8, colors='gray')
-    # 调整 x 轴刻度标签上指数的字体大小
     hist_ax.yaxis.offsetText.set(size=8)
     return hist_ax
 
 
-# %% [markdown]
-# ## 0 准备工作 
-# 
-# 读取一些数据来确定画图的范围  csc 和 ld
-# 
-# 读取一些数据
-
-# %%
-with xr.open_dataset(r'D:/data/fsc_from_su/data/global_forest_csc/global_forest_csc.tif')  as  data:
+with xr.open_dataset(r'./data/fsc_from_su/data/global_forest_csc/global_forest_csc.tif')  as  data:
     fsc_ex = data['band_data'][0].drop(['spatial_ref','band'])
     fsc_ex = fsc_ex.rename({'x':'lon','y':'lat'})
     fsc_ex = fsc_ex.coarsen(lat = 20, lon=20).mean()
@@ -160,21 +122,18 @@ ld_mask
 # %%
 ld_mask.plot()
 
-# %% [markdown]
-# ### 0.1  读取 抵抗力和fsc的 csv
 
-# %%
 import pandas as pd
 
 # %%
-drought_resistance_mid_df_kndvi = pd.read_csv(r'E:/python_output/fsc_drought/drought_resistance_kndvi_df_csc.csv') 
+drought_resistance_mid_df_kndvi = pd.read_csv(r'./python_output/fsc_drought/drought_resistance_kndvi_df_csc.csv') 
 drought_resistance_mid_df_kndvi.head()
 
 # %%
 drought_resistance_mid_df_kndvi.describe()
 
 # %%
-drought_resistance_mid_df_sif = pd.read_csv(r'E:/python_output/fsc_drought/drought_resistance_sif_df_csc.csv') 
+drought_resistance_mid_df_sif = pd.read_csv(r'./python_output/fsc_drought/drought_resistance_sif_df_csc.csv') 
 drought_resistance_mid_df_sif.head()
 
 # %%
@@ -194,20 +153,16 @@ drou_mid_use_sif['rich_bins'] = pd.cut(drou_mid_use_sif.richness, bins = [0,1.5,
 drou_sif_draw = drou_mid_use_sif[['fsc_bins','rich_bins','resistance_sif']].rename(columns={'fsc_bins':'fsc','rich_bins':'richness','resistance_sif':'resistance'})
 drou_kndvi_draw = drou_mid_use_kndvi[['fsc_bins','rich_bins','resistance_kndvi']].rename(columns={'fsc_bins':'fsc','rich_bins':'richness','resistance_kndvi':'resistance'})
 
-# %%
 drou_sif_draw['data_type'] = 'SIF'
 drou_kndvi_draw['data_type'] = 'kNDVI'
 drought_resistance_mid_draw = pd.concat([drou_sif_draw,drou_kndvi_draw])
 drought_resistance_mid_draw.head()
 
-# %%
 drought_resistance_mid_draw['resistance_log'] = np.log(drought_resistance_mid_draw['resistance'])
 
-# %%
-## 换成 基于事件的
-df_all_kndvi = pd.read_csv(r'E:/python_output/fsc_drought/df_all_kndvi_events_data.csv')
-df_all_kndvi_after2000 = pd.read_csv(r'E:/python_output/fsc_drought/df_all_kndvi_events_data_after2000.csv')
-df_all_sif = pd.read_csv(r'E:/python_output/fsc_drought/df_all_sif_events_data.csv')
+df_all_kndvi = pd.read_csv(r'./python_output/fsc_drought/df_all_kndvi_events_data.csv')
+df_all_kndvi_after2000 = pd.read_csv(r'./python_output/fsc_drought/df_all_kndvi_events_data_after2000.csv')
+df_all_sif = pd.read_csv(r'./python_output/fsc_drought/df_all_sif_events_data.csv')
 df_all_kndvi['fsc_bins'] = pd.cut(df_all_kndvi.fsc, bins = [0,9.25,9.75,10.25,10.75,11.25,13], labels= [9,9.5,10,10.5,11,11.5])
 df_all_kndvi['rich_bins'] = pd.cut(df_all_kndvi.plant_richness, bins = [0,1.5,2.5,3.5,4.5,5.5], labels= [1,2,3,4,5])
 df_all_kndvi_after2000['fsc_bins'] = pd.cut(df_all_kndvi_after2000.fsc, bins = [0,9.25,9.75,10.25,10.75,11.25,13], labels= [9,9.5,10,10.5,11,11.5])
@@ -215,7 +170,7 @@ df_all_kndvi_after2000['rich_bins'] = pd.cut(df_all_kndvi_after2000.plant_richne
 df_all_sif['fsc_bins'] = pd.cut(df_all_sif.fsc, bins = [0,9.25,9.75,10.25,10.75,11.25,13], labels= [9,9.5,10,10.5,11,11.5])
 df_all_sif['rich_bins'] = pd.cut(df_all_sif.plant_richness, bins = [0,1.5,2.5,3.5,4.5,5.5], labels= [1,2,3,4,5])
 
-# %%
+
 df_all_kndvi.head()
 
 # %%
@@ -233,13 +188,7 @@ drou_kndvi_draw_after2000['data_type'] = 'kNDVI2000'
 drought_resistance_mid_draw = pd.concat([drou_sif_draw,drou_kndvi_draw,drou_kndvi_draw_after2000])
 drought_resistance_mid_draw.head()
 
-# %% [markdown]
-# ## 1 干旱指标地图
 
-# %% [markdown]
-# ### 1.1 读取数据
-
-# %%
 with xr.open_dataset(r'result_data/drought_chars_1982_2022_new.nc') as data:
     drought_severity = data['severity']
     drought_count =  data['count']     
@@ -265,15 +214,13 @@ drought_count =  drought_count.where(ld_mask > 0)
 drought_duration = drought_duration.where(ld_mask > 0)
 
 # %%
-fig = plt.figure(figsize = (8,8))   # 画布
-grid = plt.GridSpec(6,8, ) # 子图网格
+fig = plt.figure(figsize = (8,8))  
+grid = plt.GridSpec(6,8, )
 
-# 全球恢复力分布
 map_ds, im1 = maps(grid[0:2, 0:6], my_projn, drought_severity,    -2.5, -0.5, cmap_use='magma_r', cb_label= 'Severity', cb_extend='both', cb_or='vertical', cb_shrink=1, cb_pad=0.1)
 map_dc, im1 = maps(grid[2:4, 0:6], my_projn, drought_count,    5, 35, cmap_use='magma', cb_label= 'Count', cb_extend='both', cb_or='vertical', cb_shrink=1, cb_pad=0.1)
 map_dd, im1 = maps(grid[4:6, 0:6], my_projn, drought_duration,    2, 6, cmap_use='magma', cb_label= 'Duration', cb_extend='both', cb_or='vertical', cb_shrink=1, cb_pad=0.1)
 
-# 纬向平均图
 lat_ds = lats(drought_severity,    grid[0:2, 6:8],    'orangered', -60, 60, -2.4, -0.8, 'Severity', x_ticks=[-2,-1])
 lat_dc = lats(drought_count, grid[2:4, 6:8],    'orangered', -60, 60, 10, 35, 'Count', x_ticks=[15,30])
 lat_dd = lats(drought_duration,    grid[4:6, 6:8],    'orangered', -60, 60, 1.5, 5.5, 'Duration', x_ticks=[2,4])
@@ -290,79 +237,61 @@ fig.subplots_adjust(top=0.95, bottom=0.1, left=0.01)
 
 plt.savefig(r'result_fig_new/global_drought_char.png', dpi = 600)
 
-# %% [markdown]
-# ## 2 干旱抵抗力地图
-# 
-# 变成两个 sif 和 kndvi
 
-# %% [markdown]
-# ### 2.1 读取数据
-
-# %%
-## 之前的抵抗力指标
-## kndvi
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_nt_resistance.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_nt_resistance.nc')  as data:
     resis_kndvi_nt = np.log(data['kndvi_resistance'])
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_sh_resistance.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_sh_resistance.nc')  as data:
     resis_kndvi_sh = np.log(data['kndvi_resistance'])
 
-## kndvi after2000
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_nt_resistance_after2000.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_nt_resistance_after2000.nc')  as data:
     resis_kndvi_nt_after2000 = np.log(data['kndvi_resistance'])
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_sh_resistance_after2000.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_sh_resistance_after2000.nc')  as data:
     resis_kndvi_sh_after2000 = np.log(data['kndvi_resistance'])
 
-# sif
-with xr.open_dataset(r'E:/python_output/fsc_drought/sif_nt_resistance.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/sif_nt_resistance.nc')  as data:
     resis_sif_nt = np.log(data['sif_resistance'])
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/sif_sh_resistance.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/sif_sh_resistance.nc')  as data:
     resis_sif_sh = np.log(data['sif_resistance'])
 
-## Ydrou/Ymean
-## kndvi
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_nt_resistance2.nc')  as data:
+
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_nt_resistance2.nc')  as data:
     resis_kndvi2_nt = data['kndvi_resistance']
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_sh_resistance2.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_sh_resistance2.nc')  as data:
     resis_kndvi2_sh = data['kndvi_resistance']
 
-## kndvi after2000
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_nt_resistance2_after2000.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_nt_resistance2_after2000.nc')  as data:
     resis_kndvi2_nt_after2000 = data['kndvi_resistance']
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_sh_resistance2_after2000.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_sh_resistance2_after2000.nc')  as data:
     resis_kndvi2_sh_after2000 = data['kndvi_resistance']
 
-# sif
-with xr.open_dataset(r'E:/python_output/fsc_drought/sif_nt_resistance2.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/sif_nt_resistance2.nc')  as data:
     resis_sif2_nt = data['sif_resistance']
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/sif_sh_resistance2.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/sif_sh_resistance2.nc')  as data:
     resis_sif2_sh = data['sif_resistance']
 
-## Ydrou/Ymean log
-## kndvi
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_nt_resistance2.nc')  as data:
+
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_nt_resistance2.nc')  as data:
     resis_kndvi2_log_nt = np.log(data['kndvi_resistance'] / (1-data['kndvi_resistance']) )
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_sh_resistance2.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_sh_resistance2.nc')  as data:
     resis_kndvi2_log_sh = np.log(data['kndvi_resistance'] / (1-data['kndvi_resistance']) )
 
-## kndvi after2000
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_nt_resistance2_after2000.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_nt_resistance2_after2000.nc')  as data:
     resis_kndvi2_log_nt_after2000 = np.log(data['kndvi_resistance'] / (1-data['kndvi_resistance']) )
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/kndvi_sh_resistance2_after2000.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/kndvi_sh_resistance2_after2000.nc')  as data:
     resis_kndvi2_log_sh_after2000 = np.log(data['kndvi_resistance'] / (1-data['kndvi_resistance']) )
 
-# sif
-with xr.open_dataset(r'E:/python_output/fsc_drought/sif_nt_resistance2.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/sif_nt_resistance2.nc')  as data:
     resis_sif2_log_nt = np.log(data['sif_resistance'] / (1-data['sif_resistance']) )
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/sif_sh_resistance2.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/sif_sh_resistance2.nc')  as data:
     resis_sif2_log_sh = np.log(data['sif_resistance'] / (1-data['sif_resistance']) )
 
 # %%
@@ -374,10 +303,8 @@ resis_kndvi_mid = resis_kndvi_mid.sortby('lat')
 resis_kndvi_mid = resis_kndvi_mid.interp_like(ld_mask)
 resis_kndvi_mid
 
-# %%
 resis_kndvi_mid.quantile([0.01,0.1,0.5,0.9,0.99])
 
-# %%
 resis_kndvi_mid.plot(vmax = 6, vmin = 1)
 
 # %%
@@ -456,25 +383,20 @@ resis_kndvi2_log_mid_after2000 = resis_kndvi2_log_mid_after2000.interp_like(ld_m
 resis_kndvi2_log_mid_after2000
 
 # %%
-fig = plt.figure(figsize = (12,6))   # 画布
+fig = plt.figure(figsize = (12,6)) 
+grid = plt.GridSpec(20,27, ) 
 
-grid = plt.GridSpec(20,27, ) # 子图网格
-
-# 全球恢复力分布
 map_rs_kndvi, im1 = maps(grid[0:8, 0:14], my_projn, resis_kndvi_mid,  1, 6, cmap_use='summer_r', cb_label= 'Drought resistance (kNDVI)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 map_rs_sif, im1 = maps(grid[10:18, 0:14], my_projn, resis_sif_mid,  1, 5, cmap_use='summer_r', cb_label= 'Drought resistance (SIF)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_rs_kndvi = lats( resis_kndvi_mid.where( resis_kndvi_mid<500),    grid[0:7, 14:17],    'green', -60, 60, -0.5, 7.5, 'Drought resistance (kNDVI)',x_ticks=[0,6])
 lat_rs_sif = lats( resis_sif_mid.where( resis_sif_mid<350),    grid[10:17, 14:17],    'green', -60, 60, -0.5, 6, 'Drought resistance (SIF)',x_ticks=[0,5])
 
-# 直方图
 his_rs_kndvi= small_map(fig, [0.1, 0.72, 0.05, 0.1],   resis_kndvi_mid,  bins_use= [0,1,2,3,4,5,6,7] ,  c1='springgreen',x_ticks=[0,6,3])  
 his_rs_sif= small_map(fig, [0.1, 0.265, 0.05, 0.1],   resis_sif_mid,  bins_use= [0,1,2,3,4,5,6,7] ,  c1='springgreen',x_ticks=[0,6,3])  
 
-## 抵抗力和 fsc 多样性的关系
 fsc_ax = plt.subplot(grid[0:7, 19:27])
 rich_ax = plt.subplot(grid[10:17, 19:27])
 
@@ -506,25 +428,20 @@ fig.subplots_adjust(top=0.92, bottom=0.02, right=0.97, left=0.01)
 plt.savefig(r'result_figure/figure_use_20260105/global_drought_resistance_kndvi&sif_event.png', dpi = 600)
 
 # %%
-fig = plt.figure(figsize = (12,6))   # 画布
+fig = plt.figure(figsize = (12,6))  
+grid = plt.GridSpec(20,27, ) 
 
-grid = plt.GridSpec(20,27, ) # 子图网格
-
-# 全球恢复力分布
 map_rs_kndvi, im1 = maps(grid[0:8, 0:14], my_projn, resis_kndvi_mid_after2000,  1, 6, cmap_use='summer_r', cb_label= 'Drought resistance (kNDVI)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 map_rs_sif, im1 = maps(grid[10:18, 0:14], my_projn, resis_sif_mid,  1, 5, cmap_use='summer_r', cb_label= 'Drought resistance (SIF)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_rs_kndvi = lats( resis_kndvi_mid_after2000.where( resis_kndvi_mid_after2000<500),    grid[0:7, 14:17],    'green', -60, 60, -0.5, 7.5, 'Drought resistance (kNDVI)',x_ticks=[0,6])
 lat_rs_sif = lats( resis_sif_mid.where( resis_sif_mid<350),    grid[10:17, 14:17],    'green', -60, 60, -0.5, 6, 'Drought resistance (SIF)',x_ticks=[0,5])
 
-# 直方图
 his_rs_kndvi= small_map(fig, [0.1, 0.72, 0.05, 0.1],   resis_kndvi_mid_after2000,  bins_use= [0,1,2,3,4,5,6,7] ,  c1='springgreen',x_ticks=[0,6,3],y_ticks=[0,2500,5000])  
 his_rs_sif= small_map(fig, [0.1, 0.265, 0.05, 0.1],   resis_sif_mid,  bins_use= [0,1,2,3,4,5,6,7] ,  c1='springgreen',x_ticks=[0,6,3],y_ticks=[0,2500,5000])  
 
-## 抵抗力和 fsc 多样性的关系
 fsc_ax = plt.subplot(grid[0:7, 19:27])
 rich_ax = plt.subplot(grid[10:17, 19:27])
 
@@ -559,25 +476,21 @@ fig.subplots_adjust(top=0.92, bottom=0.02, right=0.97, left=0.01)
 plt.savefig(r'result_figure/figure_use_20260105/global_drought_resistance_kndvi_after2000&sif_event.png', dpi = 600)
 
 # %%
-fig = plt.figure(figsize = (12,6))   # 画布
+fig = plt.figure(figsize = (12,6))  
 
-grid = plt.GridSpec(20,27, ) # 子图网格
+grid = plt.GridSpec(20,27, ) 
 
-# 全球恢复力分布
 map_rs_kndvi, im1 = maps(grid[0:8, 0:14], my_projn, resis_kndvi2_mid,  0.6, 1, cmap_use='summer_r', cb_label= 'Drought resistance (kNDVI)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 map_rs_sif, im1 = maps(grid[10:18, 0:14], my_projn, resis_sif2_mid,  0.6, 1, cmap_use='summer_r', cb_label= 'Drought resistance (SIF)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_rs_kndvi = lats( resis_kndvi2_mid,    grid[0:7, 14:17],    'green', -60, 60, 0.5, 1.1, 'Drought resistance (kNDVI)',x_ticks=[0.5,1])
 lat_rs_sif = lats( resis_sif2_mid,    grid[10:17, 14:17],    'green', -60, 60, 0.5, 1.1, 'Drought resistance (SIF)',x_ticks=[0.5,1])
 
-# 直方图
 his_rs_kndvi= small_map(fig, [0.1, 0.72, 0.05, 0.1],   resis_kndvi2_mid,  bins_use= np.arange(0.4,1.1,0.1) ,  c1='springgreen',x_ticks=[0.5,1],y_ticks=[0,5000,10000])  
 his_rs_sif= small_map(fig, [0.1, 0.265, 0.05, 0.1],   resis_sif2_mid,  bins_use= np.arange(0.4,1.1,0.1) ,  c1='springgreen',x_ticks=[0.5,1],y_ticks=[0,5000,10000])  
 
-## 抵抗力和 fsc 多样性的关系
 fsc_ax = plt.subplot(grid[0:7, 19:27])
 rich_ax = plt.subplot(grid[10:17, 19:27])
 
@@ -611,25 +524,20 @@ fig.subplots_adjust(top=0.92, bottom=0.02, right=0.97, left=0.01)
 plt.savefig(r'result_figure/figure_use_20260105/global_drought_resistance2_kndvi&sif_event.png', dpi = 600)
 
 # %%
-fig = plt.figure(figsize = (12,6))   # 画布
+fig = plt.figure(figsize = (12,6)) 
+grid = plt.GridSpec(20,27, ) 
 
-grid = plt.GridSpec(20,27, ) # 子图网格
-
-# 全球恢复力分布
 map_rs_kndvi, im1 = maps(grid[0:8, 0:14], my_projn, resis_kndvi2_mid_after2000,  0.6, 1, cmap_use='summer_r', cb_label= 'Drought resistance (kNDVI)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 map_rs_sif, im1 = maps(grid[10:18, 0:14], my_projn, resis_sif2_mid,  0.6, 1, cmap_use='summer_r', cb_label= 'Drought resistance (SIF)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_rs_kndvi = lats( resis_kndvi2_mid_after2000,    grid[0:7, 14:17],    'green', -60, 60, 0.5, 1.1, 'Drought resistance (kNDVI)',x_ticks=[0.5,1])
 lat_rs_sif = lats( resis_sif2_mid,    grid[10:17, 14:17],    'green', -60, 60, 0.5, 1.1, 'Drought resistance (SIF)',x_ticks=[0.5,1])
 
-# 直方图
 his_rs_kndvi= small_map(fig, [0.1, 0.72, 0.05, 0.1],   resis_kndvi2_mid_after2000,  bins_use= np.arange(0.4,1.1,0.1) ,  c1='springgreen',x_ticks=[0.5,1],y_ticks=[0,5000,10000])  
 his_rs_sif= small_map(fig, [0.1, 0.265, 0.05, 0.1],   resis_sif2_mid,  bins_use= np.arange(0.4,1.1,0.1) ,  c1='springgreen',x_ticks=[0.5,1],y_ticks=[0,5000,10000])  
 
-## 抵抗力和 fsc 多样性的关系
 fsc_ax = plt.subplot(grid[0:7, 19:27])
 rich_ax = plt.subplot(grid[10:17, 19:27])
 
@@ -664,29 +572,22 @@ fig.subplots_adjust(top=0.92, bottom=0.02, right=0.97, left=0.01)
 
 plt.savefig(r'result_figure/figure_use_20260105/global_drought_resistance2_kndvi_after2000&sif_event.png', dpi = 600)
 
-# %%
 drought_resistance_mid_draw.head()
 
-# %%
-fig = plt.figure(figsize = (12,6))   # 画布
+fig = plt.figure(figsize = (12,6))   
+grid = plt.GridSpec(20,27, )
 
-grid = plt.GridSpec(20,27, ) # 子图网格
-
-# 全球恢复力分布
 map_rs_kndvi, im1 = maps(grid[0:8, 0:14], my_projn, resis_kndvi2_log_mid,  0, 6, cmap_use='summer_r', cb_label= 'Drought resistance (kNDVI)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 map_rs_sif, im1 = maps(grid[10:18, 0:14], my_projn, resis_sif2_log_mid,  0, 6, cmap_use='summer_r', cb_label= 'Drought resistance (SIF)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_rs_kndvi = lats( resis_kndvi2_log_mid,    grid[0:7, 14:17],    'green', -60, 60, 0, 6.5, 'Drought resistance (kNDVI)',x_ticks=[0,3,6])
 lat_rs_sif = lats( resis_sif2_log_mid,    grid[10:17, 14:17],    'green', -60, 60, 0, 6, 'Drought resistance (SIF)',x_ticks=[0,3,6])
 
-# 直方图
 his_rs_kndvi= small_map(fig, [0.1, 0.72, 0.05, 0.1],   resis_kndvi2_log_mid,  bins_use= np.arange(-1,6.1,1) ,  c1='springgreen',x_ticks=[0,3,6],y_ticks=[0,2500,5000])  
 his_rs_sif= small_map(fig, [0.1, 0.265, 0.05, 0.1],   resis_sif2_log_mid,  bins_use= np.arange(-1,6.1,1) ,  c1='springgreen',x_ticks=[0,3,6],y_ticks=[0,2500,5000])  
 
-## 抵抗力和 fsc 多样性的关系
 fsc_ax = plt.subplot(grid[0:7, 19:27])
 rich_ax = plt.subplot(grid[10:17, 19:27])
 
@@ -719,26 +620,21 @@ fig.subplots_adjust(top=0.92, bottom=0.02, right=0.97, left=0.01)
 
 plt.savefig(r'result_figure/figure_use_20260105/global_drought_resistance2_log_kndvi&sif_event.png', dpi = 600)
 
-# %%
-fig = plt.figure(figsize = (12,6))   # 画布
 
-grid = plt.GridSpec(20,27, ) # 子图网格
+fig = plt.figure(figsize = (12,6))  
+grid = plt.GridSpec(20,27, ) 
 
-# 全球恢复力分布
 map_rs_kndvi, im1 = maps(grid[0:8, 0:14], my_projn, resis_kndvi2_log_mid_after2000,  0, 6, cmap_use='summer_r', cb_label= 'Drought resistance (kNDVI)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 map_rs_sif, im1 = maps(grid[10:18, 0:14], my_projn, resis_sif2_log_mid,  0, 6, cmap_use='summer_r', cb_label= 'Drought resistance (SIF)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_rs_kndvi = lats( resis_kndvi2_log_mid_after2000,    grid[0:7, 14:17],    'green', -60, 60, -1, 6.5, 'Drought resistance (kNDVI)',x_ticks=[0,3,6])
 lat_rs_sif = lats( resis_sif2_log_mid,    grid[10:17, 14:17],    'green', -60, 60, -1, 6, 'Drought resistance (SIF)',x_ticks=[0,3,6])
 
-# 直方图
 his_rs_kndvi= small_map(fig, [0.1, 0.72, 0.05, 0.1],   resis_kndvi2_log_mid_after2000,  bins_use= np.arange(-1,6.1, 1) ,  c1='springgreen',x_ticks=[0,3,6],y_ticks=[0,2500,5000])  
 his_rs_sif= small_map(fig, [0.1, 0.265, 0.05, 0.1],   resis_sif2_log_mid,  bins_use= np.arange(-1,6.1, 1) ,  c1='springgreen',x_ticks=[0,3,6],y_ticks=[0,2500,5000])  
 
-## 抵抗力和 fsc 多样性的关系
 fsc_ax = plt.subplot(grid[0:7, 19:27])
 rich_ax = plt.subplot(grid[10:17, 19:27])
 
@@ -773,8 +669,6 @@ fig.subplots_adjust(top=0.92, bottom=0.02, right=0.97, left=0.01)
 
 plt.savefig(r'result_figure/figure_use_20260105/global_drought_resistance2_log_kndvi_after2000&sif_event.png', dpi = 600)
 
-# %% [markdown]
-# ## 3 干旱阈值 
 
 # %%
 with xr.open_dataset(r'result_data/spei_nt_annual_threshold.nc')['spei'] as data:
@@ -817,17 +711,14 @@ spei_threshold.median()
 spei_threshold.plot.hist()
 
 # %%
-fig = plt.figure(figsize = (10,4))   # 画布
-grid = plt.GridSpec(5,18, ) # 子图网格
+fig = plt.figure(figsize = (10,4))   
+grid = plt.GridSpec(5,18, )
 
-# 全球恢复力分布
 map_th, im1 = maps(grid[0:5, 0:14], my_projn, spei_threshold,  -1.5, 0, cmap_use='inferno_r', cb_label= 'Drought threshold',
                     cb_extend='min', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_th = lats( spei_threshold,    grid[0:4, 15:18],    'red', -60, 60, -1.5, 0, 'Drought threshold', x_ticks=[-1,0])
 
-# 直方图
 his_th= small_map(fig, [0.13, 0.4, 0.12, 0.15],   spei_threshold,  bins_use= [-2,-1.75,-1.5,-1.25,-1,-0.75,-0.5,-0.25,0] ,  c1='orange', x_ticks=[-2,-1,0])  
 
 map_th.set_title('(a)', loc='left',fontsize=11, fontweight='bold')  
@@ -838,10 +729,7 @@ fig.subplots_adjust(top=0.9, bottom=0.1, right=0.95,left=0.05)
 
 plt.savefig(r'result_fig_new/global_drought_threshold.png', dpi = 600)
 
-# %% [markdown]
-# ## 4 干旱特征变化趋势
 
-# %%
 with xr.open_dataset(r'result_data/drought_count_trend.nc') as data:
     drought_count_trend = data.where(ld_mask > 0)
 
@@ -854,26 +742,21 @@ with xr.open_dataset(r'result_data/drought_sev_trend.nc') as data:
 # %%
 drought_dura_trend['trend'].plot.hist(bins = [-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5])
 
-# %%
 drought_dura_trend['trend'].where(drought_dura_trend['trend'] < 0 ).plot.hist(bins = [-0.5,-0.4, -0.3,-0.2,-0.1,0])
-
-# %%
 drought_dura_trend['trend'].where(drought_dura_trend['trend'] > 0 ).plot.hist(bins = np.arange(0,0.55, 0.1))
 
-# %%
+
 (~np.isnan(drought_dura_trend['trend'].where(drought_dura_trend['trend'] > 0 ).values.flatten() )).sum() / (~np.isnan(drought_dura_trend['trend'].where(drought_dura_trend['trend'] < 0 ).values.flatten() )).sum()
 
-# %%
 drought_count_trend['trend'].plot.hist(bins = np.arange(-1.2,1.3,0.2))
 
 # %%
 drought_sev_trend['trend'].plot.hist(bins = np.arange(-0.04,0.05,0.01))
 
 # %%
-fig = plt.figure(figsize = (6,8))   # 画布
-grid = plt.GridSpec(6,6, ) # 子图网格
+fig = plt.figure(figsize = (6,8))  
+grid = plt.GridSpec(6,6, ) 
 
-# 全球恢复力分布
 map_ds, im1 = maps(grid[0:2, 0:6], my_projn, drought_sev_trend['trend'],    -0.02, 0.02, cmap_use='BrBG', cb_label= 'Severity trend', cb_extend='both', cb_or='vertical', cb_shrink=1, cb_pad=0.1)
 map_dc, im1 = maps(grid[2:4, 0:6], my_projn, drought_count_trend['trend'],    -1, 1, cmap_use='BrBG_r', cb_label= 'Count trend', cb_extend='both', cb_or='vertical', cb_shrink=1, cb_pad=0.1)
 map_dd, im1 = maps(grid[4:6, 0:6], my_projn, drought_dura_trend['trend'],    -0.3, 0.3, cmap_use='BrBG_r', cb_label= 'Duration trend', cb_extend='both', cb_or='vertical', cb_shrink=1, cb_pad=0.1)
@@ -888,11 +771,9 @@ fig.subplots_adjust(top=0.95, bottom=0.1, left=0.05)
 
 plt.savefig(r'result_fig/global_drought_char_trend.png', dpi = 600)
 
-# %% [markdown]
-# ## 5 结构复杂度 物种多样性  和 landcover
 
 # %%
-with xr.open_dataset(r'D:/data/fsc_from_su/data/global_forest_csc/global_forest_csc.tif')  as  data:
+with xr.open_dataset(r'./data/global_forest_csc/global_forest_csc.tif')  as  data:
     fsc = data['band_data'][0].drop(['spatial_ref','band'])
     fsc = fsc.rename({'x':'lon','y':'lat'})
     fsc = fsc.coarsen(lat = 20, lon=20).mean()
@@ -911,10 +792,9 @@ plant_richness
 plant_richness = plant_richness.interp_like(fsc)
 
 # %%
-fig = plt.figure(figsize = (8,6))   # 画布
-grid = plt.GridSpec(4,8, ) # 子图网格
+fig = plt.figure(figsize = (8,6)) 
+grid = plt.GridSpec(4,8, )
 
-# 全球恢复力分布
 map_rich, im = maps(grid[0:2, 0:8], my_projn, plant_richness,    0.5, 5, cmap_use='viridis', cb_label= 'Species richness (log)', cb_extend='both', cb_or='vertical', cb_shrink=1, cb_pad=0.1)
 map_fsc, im = maps(grid[2:4, 0:8], my_projn, fsc,    9, 11, cmap_use='viridis', cb_label= 'Forest structural complexity', cb_extend='both', cb_or='vertical', cb_shrink=1, cb_pad=0.1)
 
@@ -931,8 +811,8 @@ fig.subplots_adjust(top=0.95, bottom=0.1, left=0.05)
 
 plt.savefig(r'result_fig_new/global_richness_fsc.png', dpi = 600)
 
-# %%
-with xr.open_dataset(r'result_data/landcover_005_use.nc') as data:    ## 这里用的landcover和其他数据分析里用的不一样
+
+with xr.open_dataset(r'result_data/landcover_005_use.nc') as data:   
     ld = data['modis_landcover'].interp_like(fsc, method='nearest')
 ld
 
@@ -962,8 +842,6 @@ fig.tight_layout()
 
 plt.savefig(r'result_fig_new/global_landcover.png', dpi = 600)
 
-# %% [markdown]
-# #### 换数据画一下  landcover
 
 # %%
 with xr.open_dataset(r'D:/data/modis_landcover/landcover_gimms_mask.nc').modis_landcover as data:
@@ -996,10 +874,7 @@ fig.tight_layout()
 
 plt.savefig(r'result_fig_new/global_landcover_new.png', dpi = 600)
 
-# %% [markdown]
-# ## 6 用双变量图 画结构复杂度和树种多样性
 
-# %%
 fsc_richness = xr.Dataset({'fsc':fsc, 'richness':plant_richness})
 
 # %%
@@ -1027,14 +902,10 @@ fsc_richness_df.loc[:,'fsc_Class'] = fsc_bin.yb
 fsc_richness_df.loc[:,'richness_Class'] = richness_bin.yb
 fsc_richness_df.head()
 
-# %% [markdown]
-# #### 6.1  先试试 代码
 
-# %%
 from matplotlib.colors import rgb2hex,hex2color
 
-# %%
-#对数据进行处理
+
 cp1 = np.linspace(0,1,10)
 cp2 = np.linspace(0,1,10)
 
@@ -1044,16 +915,12 @@ Legend = np.dstack((Cp1,Cp2, C0+0.5))
 plt.imshow(Legend, origin="lower", extent=[0,1,0,1])
 plt.show()
 
-# %%
 C0
 
-# %%
 Legend
 
-# %%
 Legend.shape
 
-# %%
 bivariate_palette = {}
 n_categories =10
 for j in range(n_categories):
@@ -1090,18 +957,16 @@ ax.coastlines(linewidth=0.5,zorder=20)
 ax.add_feature(cfeature.LAND, facecolor='gainsboro')
 
 map_fsc_rich = ax.scatter( x=fsc_richness_df['lon'],y=fsc_richness_df['lat'], c=fsc_richness_df['color'] , transform = ccrs.PlateCarree(), s=1.5, edgecolor='none')
-ax.scatter( x=-180,y=0, c='white' , transform = ccrs.PlateCarree(), s=0.1)  ## 加一个点 让地图完整
+ax.scatter( x=-180,y=0, c='white' , transform = ccrs.PlateCarree(), s=0.1) 
 
 gls = ax.gridlines(draw_labels=False, crs=ccrs.PlateCarree(), 
                    color='k', linestyle='dashed', linewidth=0.3, 
                    y_inline=False,zorder=1,alpha=.5)
 
-#添加图例
 cax = fig.add_axes([0.05,0.2,0.25,0.25])
-#对数据进行处理
 
-cax.annotate("", xy=(0, 1), xytext=(0, 0), arrowprops=dict(arrowstyle="->", lw=1)) # draw arrow for x 
-cax.annotate("", xy=(1, 0), xytext=(0, 0), arrowprops=dict(arrowstyle="->", lw=1)) # draw arrow for 
+cax.annotate("", xy=(0, 1), xytext=(0, 0), arrowprops=dict(arrowstyle="->", lw=1)) 
+cax.annotate("", xy=(1, 0), xytext=(0, 0), arrowprops=dict(arrowstyle="->", lw=1)) 
 cax.axis("off")
 cax.imshow(Legend, origin="lower", extent=[0,1,0,1])
 cax.text(s='Species richness (log)', x=0, y=-0.18,size=12) 
@@ -1110,8 +975,6 @@ cax.text(s='Structural complexity', x=-0.18, y=0, size=12,rotation=90)
 plt.tight_layout()
 fig.savefig(r'result_fig_new/fsc_richness_bi_try.png', dpi=600)
 
-# %% [markdown]
-# #### 6.2 调整颜色
 
 # %%
 def interpolate_color_from_4corners(bl, br, tl, tr, nx, ny):
@@ -1149,24 +1012,18 @@ colors_100
 # %%
 plt.imshow(colors_100, origin='lower')
 
-# %%
 
-
-# %% [markdown]
-# ## 7 试着画一个双色的散点分布图
 
 # %%
 import pandas as pd
 
-# %%
-## 简单生成几个点
+
 exam_pd = pd.DataFrame( {'lat':  30 + np.random.rand(10)* 60,
                          'lon':  60 + np.random.rand(10)* 60,
                          'cor_1':np.random.rand(10),
                          'cor_2':np.random.rand(10)  })
 exam_pd
 
-# %%
 from matplotlib.markers import MarkerStyle
 
 # %%
@@ -1188,24 +1045,22 @@ gls = ax.gridlines(draw_labels=False, crs=ccrs.PlateCarree(),
 
 plt.colorbar(im)
 
-# %% [markdown]
-# ## 8 土壤水分变化率地图
 
 # %%
-with xr.open_dataset(r'E:/python_output/fsc_drought/sm_nt_change_kndvi.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/sm_nt_change_kndvi.nc')  as data:
     sm_nt_change = data['sm_change']
     sm_nt_change_mid = sm_nt_change.median('year')
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/sm_sh_change_kndvi.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/sm_sh_change_kndvi.nc')  as data:
     sm_sh_change = data['sm_change']
     sm_sh_change_mid = sm_sh_change.median('year')
 
 # %%
-with xr.open_dataset(r'E:/python_output/fsc_drought/smrz_nt_change_kndvi.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/smrz_nt_change_kndvi.nc')  as data:
     smrz_nt_change = data['sm_change']
     smrz_nt_change_mid = smrz_nt_change.median('year')
 
-with xr.open_dataset(r'E:/python_output/fsc_drought/smrz_sh_change_kndvi.nc')  as data:
+with xr.open_dataset(r'./python_output/fsc_drought/smrz_sh_change_kndvi.nc')  as data:
     smrz_sh_change = data['sm_change']
     smrz_sh_change_mid = smrz_sh_change.median('year')
 
@@ -1226,17 +1081,14 @@ sm_change_mid.plot()
 sm_change_mid = np.log(sm_change_mid)
 
 # %%
-fig = plt.figure(figsize = (10,4))   # 画布
-grid = plt.GridSpec(5,18, ) # 子图网格
+fig = plt.figure(figsize = (10,4))  
+grid = plt.GridSpec(5,18, )
 
-# 全球恢复力分布
 map_sm, im1 = maps(grid[0:5, 0:14], my_projn, sm_change_mid,  1, 5, cmap_use='BrBG', cb_label= 'Soil moisture change (log)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_sm = lats( sm_change_mid.where(sm_change_mid<10),    grid[0:4, 15:18],    'lightseagreen', -60, 60, 2, 6, 'Soil moisture\n' + 'change (log)', x_ticks=[2,5])
 
-# 直方图
 his_sm= small_map(fig, [0.15, 0.4, 0.1, 0.15],   sm_change_mid,  bins_use= [0,1,2,3,4,5,6] ,  c1='aquamarine',x_ticks=[1,5], y_ticks=[0,1000,2000,3000])  
 
 map_sm.set_title('(a)', loc='left',fontsize=11, fontweight='bold')  
@@ -1264,17 +1116,14 @@ smrz_change_mid.plot()
 smrz_change_mid = np.log(smrz_change_mid)
 
 # %%
-fig = plt.figure(figsize = (10,4))   # 画布
-grid = plt.GridSpec(5,18, ) # 子图网格
+fig = plt.figure(figsize = (10,4))  
+grid = plt.GridSpec(5,18, ) 
 
-# 全球恢复力分布
 map_sm, im1 = maps(grid[0:5, 0:14], my_projn, smrz_change_mid,  1, 5, cmap_use='BrBG', cb_label= 'Soil moisture change (log)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_sm = lats( smrz_change_mid.where(smrz_change_mid<10),    grid[0:4, 15:18],    'lightseagreen', -60, 60, 1, 6, 'Soil moisture\n' + 'change (log)', x_ticks=[1,5])
 
-# 直方图
 his_sm= small_map(fig, [0.15, 0.4, 0.1, 0.15],   sm_change_mid,  bins_use= [0,1,2,3,4,5,6] ,  c1='aquamarine',x_ticks=[1,5], y_ticks=[0,1000,2000,3000])  
 
 map_sm.set_title('(a)', loc='left',fontsize=11, fontweight='bold')  
@@ -1286,21 +1135,14 @@ fig.subplots_adjust(top=0.9, bottom=0.1, right=0.95,left=0.05)
 plt.savefig(r'result_figure/figure_use/global_smrz_change_mid.png', dpi = 600)
 
 
-# %% [markdown]
-# ## 9 土壤-大气温度差 和 fsc的相关  空间地图
-
-# %%
-## 数据
 with xr.open_dataset(r'result_data/cor_soil_air_temp_offset_and_csc.nc')['cor'] as data:
     cor_result_all = data.sel(lat = slice(52,-52))
 cor_result_all
 
-# %%
 with  xr.open_dataset(r'result_data/pvalue_soil_air_temp_offset_and_csc.nc')['p_value']  as data:
     p_result_all = data.sel(lat = slice(52,-52))
 p_result_all
 
-# %%
 my_projn = ccrs.Mollweide(central_longitude=0)
 
 # %%
@@ -1328,10 +1170,8 @@ plt.subplots_adjust(top=0.95, bottom=0.12, right=0.98, left=0.04, hspace=0, wspa
 
 plt.savefig('result_fig_new/cor_map_fsc_soil_air_temp.png', dpi = 600)
 
-# %% [markdown]
-# ### 9.2 生长季的温度差 地图
 
-# %%
+
 with xr.open_dataset(r'E:/python_output/fsc_drought/temp_offset_005.nc') as data:
     temp_offset = data['temp_offset']
 temp_offset
@@ -1350,16 +1190,14 @@ temp_offset_05.where(fsc_ex > 0).plot(vmin = -1, vmax = 1)
 temp_offset_05 = temp_offset_05.where(fsc_ex > 0) * 0.1
 
 # %%
-fig = plt.figure(figsize = (10,4))   # 画布
-grid = plt.GridSpec(5,18, ) # 子图网格
+fig = plt.figure(figsize = (10,4))  
+grid = plt.GridSpec(5,18, ) 
 
 map_to, im1 = maps(grid[0:5, 0:14], my_projn, temp_offset_05,  -2, 2, cmap_use='coolwarm', cb_label= 'Temperature offset (℃)',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_to = lats( temp_offset_05,    grid[0:4, 15:18],    'blue', -60, 60, -4.5,4.5, 'Temperature offset (℃)', x_ticks=[-4,0,4])
 
-# 直方图
 his_th= small_map(fig, [0.13, 0.4, 0.12, 0.15],   temp_offset_05,  bins_use= np.arange(-4,4.1,0.5) ,  c1='blue', x_ticks=[-4,0,4])  
 his_th.set_ylim(0, 2000)
 his_th.set_yticks([0,1000,2000])
@@ -1372,14 +1210,11 @@ fig.subplots_adjust(top=0.9, bottom=0.1, right=0.95,left=0.05)
 
 plt.savefig(r'result_figure/figure_use/global_temperature_offset.png', dpi = 600)
 
-# %% [markdown]
-# ## 10 biome
 
-# %%
 import rioxarray
 
 # %%
-with rioxarray.open_rasterio(r'D:/data/official_teow/biome.tif')  as data:
+with rioxarray.open_rasterio(r'./data/official_teow/biome.tif')  as data:
     biome = data
 biome = biome.where(biome>0)
 biome = biome.where(biome<90)
@@ -1415,14 +1250,11 @@ fig.tight_layout()
 
 plt.savefig(r'result_fig_new/global_biomes.png', dpi = 600)
 
-# %% [markdown]
-# ## 11 lst 变化的地图
 
-# %%
-with xr.open_dataset(r'E:/python_output/fsc_drought/lst_nt_zs_kndvi.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/lst_nt_zs_kndvi.nc') as data:
     lst_zs_nt = data['lst_zs']
     lst_zs_nt_mid = lst_zs_nt.median(dim='year')
-with xr.open_dataset(r'E:/python_output/fsc_drought/lst_sh_zs_kndvi.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/lst_sh_zs_kndvi.nc') as data:
     lst_zs_sh = data['lst_zs']
     lst_zs_sh_mid = lst_zs_sh.median(dim='year')
 
@@ -1440,17 +1272,14 @@ lst_zs_mid = lst_zs_mid.where(fsc_ex > 0)
 lst_zs_mid.plot()
 
 # %%
-fig = plt.figure(figsize = (10,4))   # 画布
-grid = plt.GridSpec(5,18, ) # 子图网格
+fig = plt.figure(figsize = (10,4))  
+grid = plt.GridSpec(5,18, )
 
-# 全球恢复力分布
 map_sm, im1 = maps(grid[0:5, 0:14], my_projn, lst_zs_mid,  -4, 4, cmap_use='coolwarm', cb_label= 'Land surface temperature change',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_sm = lats( lst_zs_mid.where(lst_zs_mid<10),    grid[0:4, 15:18],    'tomato', -60, 60, -1, 3.5, 'Land surface temperature\n' + 'change', x_ticks=[0,2])
 
-# 直方图
 his_sm= small_map(fig, [0.15, 0.4, 0.1, 0.15],   lst_zs_mid,  bins_use= [-2,-1,0,1,2,3,4] ,  c1='tomato',x_ticks=[0,5], y_ticks=[0,2000,4000])  
 
 map_sm.set_title('(a)', loc='left',fontsize=11, fontweight='bold')  
@@ -1461,38 +1290,30 @@ fig.subplots_adjust(top=0.9, bottom=0.1, right=0.95,left=0.05)
 
 plt.savefig(r'result_figure/figure_use/global_lst_zs_mid.png', dpi = 600)
 
-# %% [markdown]
-# ## 12 et 变化的地图
 
-# %%
-with xr.open_dataset(r'E:/python_output/fsc_drought/et_nt_change2_kndvi.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/et_nt_change2_kndvi.nc') as data:
     et_change_nt = data['et_change2']
     et_change_nt_mid = et_change_nt.median(dim='year')
-with xr.open_dataset(r'E:/python_output/fsc_drought/et_sh_change2_kndvi.nc') as data:
+with xr.open_dataset(r'./python_output/fsc_drought/et_sh_change2_kndvi.nc') as data:
     et_change_sh = data['et_change2']
     et_change_sh_mid = et_change_sh.median(dim='year')
 
-# %%
 et_change_mid = xr.concat([et_change_nt_mid, et_change_sh_mid], dim='lat')
 et_change_mid = et_change_mid.sortby('lat')
 et_change_mid
 
-# %%
 et_change_mid = et_change_mid.interp_like(fsc_ex)
 et_change_mid.plot()
 
 # %%
-fig = plt.figure(figsize = (10,4))   # 画布
-grid = plt.GridSpec(5,18, ) # 子图网格
+fig = plt.figure(figsize = (10,4))  
+grid = plt.GridSpec(5,18, )
 
-# 全球恢复力分布
 map_sm, im1 = maps(grid[0:5, 0:14], my_projn, et_change_mid,  -0.4, 0.4, cmap_use='coolwarm', cb_label= 'Transpiration change',
                     cb_extend='both', cb_or='horizontal', cb_shrink = 0.6, cb_pad= 0.05)
 
-# 纬向平均图
 lat_sm = lats( et_change_mid,    grid[0:4, 15:18],    'dodgerblue', -60, 60, -0.5, 0.4, 'Transpiration change', x_ticks=[-0.3,0,0.3])
 
-# 直方图
 his_sm= small_map(fig, [0.15, 0.4, 0.1, 0.15],   et_change_mid,  bins_use= [-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3] ,  c1='dodgerblue',x_ticks=[-0.3,0,0.3], y_ticks=[0,3000,6000])  
 
 map_sm.set_title('(a)', loc='left',fontsize=11, fontweight='bold')  
@@ -1503,18 +1324,12 @@ fig.subplots_adjust(top=0.9, bottom=0.1, right=0.95,left=0.05)
 
 plt.savefig(r'result_figure/figure_use/global_et_change_mid.png', dpi = 600)
 
-# %% [markdown]
-# ## 13 合并偏相关的结果
 
-# %% [markdown]
-# ### 13.1  读取所有的数据
+bi_pd_pcor_all_kndvi_mid = pd.read_csv('./python_output/fsc_drought/bi_pd_pcor_all_kndvi_mid.csv')
+bi_pd_pval_all_kndvi_mid = pd.read_csv('./python_output/fsc_drought/bi_pd_pval_all_kndvi_mid.csv')
 
-# %%
-bi_pd_pcor_all_kndvi_mid = pd.read_csv('E:/python_output/fsc_drought/bi_pd_pcor_all_kndvi_mid.csv')
-bi_pd_pval_all_kndvi_mid = pd.read_csv('E:/python_output/fsc_drought/bi_pd_pval_all_kndvi_mid.csv')
-
-bi_pd_pcor_all_sif_mid = pd.read_csv('E:/python_output/fsc_drought/bi_pd_pcor_all_sif_mid.csv')
-bi_pd_pval_all_sif_mid = pd.read_csv('E:/python_output/fsc_drought/bi_pd_pval_all_sif_mid.csv')
+bi_pd_pcor_all_sif_mid = pd.read_csv('./python_output/fsc_drought/bi_pd_pcor_all_sif_mid.csv')
+bi_pd_pval_all_sif_mid = pd.read_csv('./python_output/fsc_drought/bi_pd_pval_all_sif_mid.csv')
 
 # %%
 biome_short_dic = {1: 'Trop.&Subtrop. Moist Broad. Forests',
@@ -1607,15 +1422,9 @@ plt.subplots_adjust(top=0.93, bottom=0.12, right=0.93, left=0.2, wspace=0.02)
 plt.savefig('result_figure/figure_use/pcor_richness_fsc_prec_kndvi&sif_csc_mid.png', dpi = 600)
 
 
-# %% [markdown]
-# ## 14 干旱抵抗力 hexplot
-
-# %%
 drou_mid_use_kndvi['resistance_log'] = np.log(drou_mid_use_kndvi.resistance_kndvi)
 drou_mid_use_sif['resistance_log'] = np.log(drou_mid_use_sif.resistance_sif)
 
-# %%
-##  kndvi 和 sif
 fig, axes = plt.subplots(2,3, figsize=(12,8))
 
 axes[0,0].hexbin(drou_mid_use_kndvi.richness, drou_mid_use_kndvi.fsc, 
@@ -1688,17 +1497,4 @@ plt.colorbar(im, position2, extend='both', label = 'Resistance (SIF)',orientatio
 plt.subplots_adjust(top=0.93, bottom=0.1, right=0.88, left=0.06, wspace=0.27)
 
 plt.savefig('result_figure/figure_use/resistance_richness_fsc_prec_kndvi&sif_csc_mid.png', dpi = 600)
-
-
-# %%
-
-
-# %% [markdown]
-# ## change log
-# 1. 2025.02.20  画了 干旱特征，抵抗力， 多样性， 结构复杂度 和 landcover的图
-# 2. 2025.02.24  画了 ndvi和vod的干旱抵抗力地图  补充了抵抗力中位数地图
-
-# %%
-
-
 
